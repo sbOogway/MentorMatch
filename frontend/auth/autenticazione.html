@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang= "it">
+<head>
+    <meta charset= "UTF-8">
+    <meta name= "viewport" content= "width= device-width, initial-scale=1">
+
+    <meta name= "description" content= "MentorMatch - Esame pratico di Tecnologie Innovative per lo Sviluppo Web di I.G. e K.S.">
+
+    <title> Autenticazione - MentorMatch</title>
+
+    <!--Favicon-->
+    <link rel = "icon" type= "image/png" href= "../images/favicon.png">
+
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <!--Style-->
+    <link type="text/css" rel="stylesheet" href="../css/style.css">
+    
+    <!--Fonts-->
+    <link rel="preconnect" href="https://rsms.me/">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+
+    <!-- JS -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+    <script>
+        const urlBaseApi= ""; //<<--URL del backend 
+
+        $(document).ready(function (){
+
+            //Token
+            const token = localStorage.getItem('sessionToken');
+            const userData = JSON.parse(localStorage.getItem('userData'));
+            if(token && userData){
+                if(userData.role === "mentor"){
+                    window.location.href = '../mentor-dashboard.html';
+                }else{
+                   window.location.href = '../mentee-dashboard.html';
+
+              }
+              return;
+            }
+
+            //Handle tab=login/ tab=register in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const tabParam = urlParams.get('tab');
+            
+            if(tabParam){
+                if(tabParam === 'login'){
+                    //Activate the login tab
+                    $('#login-tab').tab('show');
+                }else if( tabParam === 'register'){
+                    //Activate the registration tab
+                    $('#register-tab').tab('show');
+                }
+
+                //Remove the parameter from the URL without reloading the page
+                const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+                window.history.replaceState({path : newUrl}, '' , newUrl);
+            }
+
+            /**
+             * Show an alert message in the interface
+             * @param {string} msg - The message to display
+             * @param {string} type - the type of alert ('success', 'danger', 'warning', 'info')
+             * @param {string} containerId - The ID of the container must show the alert
+             * 
+             */
+
+             function showAlert( msg, type = 'danger', containerId){
+                const htmlAlert = `<div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                              ${msg}
+                              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                           </div>`;
+                $(`#${containerId}`).html(htmlAlert);
+             }
+
+             /**
+              * Removes all alerts from a container
+              * @param {string} containerId - The ID of the container from which to remove the alerts
+              */ 
+              function clearAlert(containerId) {
+                $(`#${containerId} .alert`).remove();
+            }
+
+        // -------------------- ROLE SWITCH (MENTOR FIELDS) --------------------
+        function toggleMentorFields() {
+            const role = $('input[name="user-role"]:checked').val();
+            if (role === "mentor") {
+                $('#mentor-fields').slideDown();
+            } else {
+                $('#mentor-fields').slideUp();
+            }
+        }
+
+        $('input[name="user-role"]').change(toggleMentorFields);
+        toggleMentorFields();
+
+        // -------------------- LOGIN --------------------
+        $("#loginForm").submit(function (e) {
+            e.preventDefault();
+            clearAlert("login-feedback");
+            // --- BUTTON LOADING STATE ---
+            const submitButton = $(this).find('button[type="submit"]');
+            const originalText = submitButton.html();
+            submitButton.prop("disabled", true).html(
+                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Accesso...'
+        );
+            const email = $("#login-email").val().trim();
+            const password = $("#login-password").val();
+            const ricordami = $('#remember').is(':checked');
+
+            if (!email || !password) {
+                showAlert("Inserisci email e password.", "warning", "login-feedback");
+                submitButton.prop("disabled", false).html(originalText);
+                return;
+            }
+
+            $.ajax({
+                url: `${urlBaseApi}/api/auth/login`,
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({ email, password }),
+                success: function (res) {
+                    localStorage.setItem("sessionToken", res.token);
+                    localStorage.setItem("userData", JSON.stringify(res.user));
+
+                    // Redirect in base al ruolo
+                    if (res.user.role === "mentor") {
+                        window.location.href = "../mentor-dashboard.html";
+                    } else {
+                        window.location.href = "../mentee-dashboard.html";
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("Login error: ", xhr.responseText);
+                    let msgError = "Errore durante il login.";
+                    if(xhr.responseJSON && xhr.responseJSON.message){
+                        msgError = xhr.responseJSON.message;
+                    }
+                    else if (xhr.status === 401) msgError = "Credenziali non valide.";
+                    showAlert(msgError, "danger", "login-feedback");
+                    submitButton.prop('disabled', false).html(originalText);
+                }
+            });
+        });
+
+        // -------------------- REGISTER --------------------
+        $("#registerForm").submit(function (e) {
+            e.preventDefault();
+            clearAlert("register-feedback");
+
+            // ---- BUTTON LOADING STATE ----
+            const submitButton = $(this).find('button[type="submit"]');
+            const originalText = submitButton.html();
+        
+            const email = $("#register-email").val().trim();
+            const password = $("#register-password").val();
+            const confirmPassword = $("#confirm-password").val();
+            const role = $('input[name="user-role"]:checked').val();
+            const termsAccepted = $('#terms').is(':checked');
+
+            if (password !== confirmPassword) {
+                showAlert("Le password non coincidono.", "warning", "register-feedback");
+                submitButton.prop("disabled", false).html(originalText);
+                return;
+            }
+
+            if (!termsAccepted) {
+                showAlert("Accetta i Termini e Condizioni per continuare.", "warning", "register-feedback");
+                submitButton.prop("disabled", false).html(originalText);
+                return;
+            }
+
+            submitButton.prop("disabled", true).html(
+                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Registrazione...'
+            );
+            // BACKEND ACCETTA SOLO QUESTI 3 CAMPI:
+            const payload = {
+                email: email,
+                password: password,
+                role: role
+            };
+
+            $.ajax({
+                url: `${urlBaseApi}/api/auth/register`,
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(payload),
+                success: function (res) {
+                    showAlert(
+                        `Registrazione completata per ${email}. Ora puoi effettuare il login.`,
+                        "success",
+                        "register-feedback"
+                    );
+
+                    $('#registerForm')[0].reset();
+                    toggleMentorFields();
+
+                    setTimeout(() => {
+                        $('#login-tab').tab('show');
+                        $('#login-email').val(email);
+                    }, 3000);
+                },
+                error: function (xhr, status, error) {
+                    console.error("Registration error:", xhr.responseText);
+                        let msgError = "Errore durante la registrazione. Riprova.";
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            msgError = xhr.responseJSON.message;
+                        } else if (xhr.status === 409) {
+                            msgError = "Email già in uso, per favore sceglierne un'altra.";
+                        }
+                        showAlert(msgError, 'danger', 'register-feedback');
+                        submitButton.prop('disabled', false).html(originalText);
+                    }
+            });
+        });
+    });
+
+    // -------------------- COOKIE BANNER --------------------
+    document.addEventListener('DOMContentLoaded', () => {
+        const banner = document.getElementById('cookie-banner');
+        if (!localStorage.getItem('cookieConsent')) {
+            setTimeout(() => banner.classList.add('show'), 50);
+        }
+
+        document.getElementById('acceptCookies').addEventListener('click', () => {
+            localStorage.setItem('cookieConsent', 'true');
+            banner.classList.remove('show');
+            setTimeout(() => banner.style.display = 'none', 400);
+        });
+
+        document.getElementById('rejectCookies').addEventListener('click', () => {
+            localStorage.setItem('cookieConsent', 'false');
+            banner.classList.remove('show');
+            setTimeout(() => banner.style.display = 'none', 400);
+        });
+    });
+</script>
+</head>
+
+<body>
+
+<div class= "container pb-5 pt-4">
+
+    <div class= "row mb-3">
+        <div class= "col">
+            <a href= "../index.html" class= "link-dark text-decoration-none">
+                <p class="small"><i class= "bi bi-arrow-left"></i> Torna alla home</p>
+            </a>
+        </div>
+    </div>
+
+    <h1 class= "fs-2 fw-bold mb-4 text-start">Autenticazione</h1>
+    
+    <div class = "col-lg-8 mx-auto">
+
+        <!--Tabs Login / Register-->
+        <ul class= "nav nav-tabs nav-fill mb-3" id= "accountTab" role= "tablist">
+           <li class="nav-item" role="presentation">
+                <button class="nav-link active text-dark" id="login-tab" data-bs-toggle="tab"
+                        data-bs-target="#login-pane" type="button" role="tab" aria-controls="login-pane"
+                        aria-selected="true">Accedi
+                </button> 
+                </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link text-dark" id="register-tab" data-bs-toggle="tab"
+                        data-bs-target="#register-pane" type="button" role="tab"
+                        aria-controls="register-pane" aria-selected="false">Registrati
+                </button>
+            </li>
+        </ul>
+
+        <!--Conteunuto Login/ Registration-->
+        <div class= "tab-content" id="accountTabContent">
+
+            <!--Login-->
+             <div class="tab-pane fade show active" id="login-pane" role="tabpanel" aria-labelledby="login-tab"
+                 tabindex="0">
+                <div class="card p-3">
+                    <form id="loginForm">
+                        <div class="card-header bg-white border-bottom border-white">
+                            <h4 class="card-title mb-1 fw-bold">Accedi al tuo account</h4>
+                            <p class="card-text text-muted small">Inserisci le tue credenziali per accedere al tuo account.</p>
+                        </div>
+
+                        <div class= "card-body pb-0">
+                            <div id= "login-feedback"></div>
+                            <div class=" mb-3">
+                                <label for="login-email" class="form-label">Email</label>
+                                <input type= "email" class="form-control" id= "login-email" placeholder= "nome@esempio.com" required>
+                            </div>
+
+                            <div class= "mb-3">
+                                <div class= "d-flex justify-content-between align-items-center mb-1">
+                                    <label for= "login-password" class="form-label mb-0">Password</label>
+                                </div>
+                                <input type="password" class="form-control" id="login-password" required>
+                            </div>
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="remember">
+                                <label class="form-check-label small" for="remember">
+                                    Ricordami
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="card-footer bg-white border-top border-white pt-0">
+                            <button type="submit" class="btn btn-dark w-100" id="">Accedi</button>
+                        </div>
+                    </form>
+        </div>
+    </div>
+
+    <!--Registrazione effettiva-->
+    <div class="tab-pane fade" id="register-pane" role="tabpanel" aria-labelledby="register-tab"
+    tabindex="0">
+    <div class="card p-3">
+        <form id="registerForm">
+
+            <div class="card-header bg-white border-bottom border-white">
+                <h4 class="card-title mb-1 fw-bold">Crea un nuovo account</h4>
+                <p class="card-text text-muted small">Registrati come mentee o mentor.</p>   
+            </div>
+
+            <div class="card-body pb-0">
+                <div id="register-feedback"></div>
+
+                <!--Nome e cognome-->
+                <div class="row g-3 mb-3">
+                    <div class= "col-md-6">
+                        <label for="first-name" class="form-label">Nome</label>
+                        <input type="text" class="form-control" id="first-name" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="last-name" class="form-label">Cognome</label>
+                        <input type="text" class="form-control" id="last-name" required>
+                    </div>
+                </div>
+
+                <!--Email-->
+                <div class="mb-3">
+                    <label for="register-email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="register-email" placeholder="nome@esempio.com" required>
+                </div>
+
+                <!--Password-->
+                <div class="mb-3">
+                    <label for="register-password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="register-password" required>
+                </div>
+
+                <div class="mb-2">
+                    <label for="confirm-password" class="form-label">Conferma Password</label>
+                    <input type="Password" class="form-control" id="confirm-password" required>
+                </div>
+
+                <!--Tipologia UTENTE: MENTEE o MENTOR-->
+                <div class="mb-2">
+                    <label class="form-label d-block">Tipo di account</label>
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="user-role" id="role-mentee" value="mentee" checked>
+                                <label class="form-check-label fw-normal" for="role-mentee">Mentee</label>
+                            </div>              
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="user-role" id="role-mentor" value="mentor">
+                                <label class="form-check-label fw-normal" for="role-mentor">Mentor</label>
+                            </div>
+                        </div>
+                    </div>
+                
+
+                <!--Campi MENTOR(inizialmente nascosti)-->
+                <div id="mentor-fields" class="row g-3 mb-3 mt-3" style="display:none;">
+                    <div class="col-md-6">
+                        <label for="mentor-skill" class="form-label">Area di competenza</label>
+                        <input type="text" class="form-control" id="mentor-skill" placeholder="Es. Programmazione, AI"> 
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="mentor-experience" class="form-label">Anni di esperienza</label>
+                        <input type="number" min="0" class="form-control" id="mentor-experience">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="mentor-description" class="form-label">Descrizione</label>
+                        <textarea class="form-control" id="mentor-description" rows="3"></textarea>
+                        <div class="form-text">Scrivi una breve presentazione che sarà visibile ai mentee.</div>
+                    </div>
+                </div>
+
+            </div>
+            <!--Termini-->
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="terms">
+                <label class="form-check-label small" for="terms">
+                    Accetto <a href="../legal/tos.html" class="link-dark text-decoration-none">Termini e
+                    Condizioni</a> e <a href="../legal/privacy.html" class="link-dark text-decoration-none">Privacy
+                    Policy</a>
+                </label>
+            </div>
+
+        </div>
+
+        <div class="card-footer bg-white border-top border-white pt-0">
+                <button type="submit" class="btn btn-dark w-100">Registrati</button>
+             </div>
+        </form>
+    </div>
+</div>
+
+</div>
+</div>
+</div>
+
+<!-- Cookie Banner -->
+<div id="cookie-banner" class="cookie-banner">
+    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+        <div class="mb-2 mb-md-0 small">
+            Utilizziamo solo cookie essenziali per il funzionamento del sito. Consulta la nostra
+            <a href="../legal/privacy.html" class="link-dark text-decoration-underline">Privacy Policy</a> e
+            <a href="../legal/tos.html" class="link-dark text-decoration-underline">Termini di Servizio</a>.
+        </div>
+        <div class="d-flex align-items-center">
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="essentialCookies" checked disabled>
+                <label class="form-check-label small" for="essentialCookies">Essenziali</label>
+            </div>
+            <div class="form-check form-check-inline ms-2">
+                <input class="form-check-input" type="checkbox" id="analyticsCookies" disabled>
+                <label class="form-check-label small" for="analyticsCookies">Analitici</label>
+            </div>
+            <div class="form-check form-check-inline ms-2">
+                <input class="form-check-input" type="checkbox" id="marketingCookies" disabled>
+                <label class="form-check-label small" for="marketingCookies">Marketing</label>
+            </div>
+            <button id="rejectCookies" class="btn btn-secondary btn-sm ms-3">Rifiuta</button>
+            <button id="acceptCookies" class="btn btn-dark btn-sm ms-2">Accetta</button>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq"
+        crossorigin="anonymous"></script>
+</body>
+</html>
