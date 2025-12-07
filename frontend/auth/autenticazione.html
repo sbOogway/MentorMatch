@@ -27,8 +27,222 @@
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"
             integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 
+    <script>
+        const urlBaseApi= ""; //<<--URL del backend 
 
+        $(document).ready(function (){
+
+            //Token
+            const token = localStorage.getItem('sessionToken');
+            const userData = JSON.parse(localStorage.getItem('userData'));
+            if(token && userData){
+                if(userData.role === "mentor"){
+                    window.location.href = '../mentor-dashboard.html';
+                }else{
+                   window.location.href = '../mentee-dashboard.html';
+
+              }
+              return;
+            }
+
+            //Handle tab=login/ tab=register in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const tabParam = urlParams.get('tab');
+            
+            if(tabParam){
+                if(tabParam === 'login'){
+                    //Activate the login tab
+                    $('#login-tab').tab('show');
+                }else if( tabParam === 'register'){
+                    //Activate the registration tab
+                    $('#register-tab').tab('show');
+                }
+
+                //Remove the parameter from the URL without reloading the page
+                const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+                window.history.replaceState({path : newUrl}, '' , newUrl);
+            }
+
+            /**
+             * Show an alert message in the interface
+             * @param {string} msg - The message to display
+             * @param {string} type - the type of alert ('success', 'danger', 'warning', 'info')
+             * @param {string} containerId - The ID of the container must show the alert
+             * 
+             */
+
+             function showAlert( msg, type = 'danger', containerId){
+                const htmlAlert = `<div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                              ${msg}
+                              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                           </div>`;
+                $(`#${containerId}`).html(htmlAlert);
+             }
+
+             /**
+              * Removes all alerts from a container
+              * @param {string} containerId - The ID of the container from which to remove the alerts
+              */ 
+              function clearAlert(containerId) {
+                $(`#${containerId} .alert`).remove();
+            }
+
+        // -------------------- ROLE SWITCH (MENTOR FIELDS) --------------------
+        function toggleMentorFields() {
+            const role = $('input[name="user-role"]:checked').val();
+            if (role === "mentor") {
+                $('#mentor-fields').slideDown();
+            } else {
+                $('#mentor-fields').slideUp();
+            }
+        }
+
+        $('input[name="user-role"]').change(toggleMentorFields);
+        toggleMentorFields();
+
+        // -------------------- LOGIN --------------------
+        $("#loginForm").submit(function (e) {
+            e.preventDefault();
+            clearAlert("login-feedback");
+            // --- BUTTON LOADING STATE ---
+            const submitButton = $(this).find('button[type="submit"]');
+            const originalText = submitButton.html();
+            submitButton.prop("disabled", true).html(
+                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Accesso...'
+        );
+            const email = $("#login-email").val().trim();
+            const password = $("#login-password").val();
+            const ricordami = $('#remember').is(':checked');
+
+            if (!email || !password) {
+                showAlert("Inserisci email e password.", "warning", "login-feedback");
+                submitButton.prop("disabled", false).html(originalText);
+                return;
+            }
+
+            $.ajax({
+                url: `${urlBaseApi}/api/auth/login`,
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({ email, password }),
+                success: function (res) {
+                    localStorage.setItem("sessionToken", res.token);
+                    localStorage.setItem("userData", JSON.stringify(res.user));
+
+                    // Redirect in base al ruolo
+                    if (res.user.role === "mentor") {
+                        window.location.href = "../mentor-dashboard.html";
+                    } else {
+                        window.location.href = "../mentee-dashboard.html";
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("Login error: ", xhr.responseText);
+                    let msgError = "Errore durante il login.";
+                    if(xhr.responseJSON && xhr.responseJSON.message){
+                        msgError = xhr.responseJSON.message;
+                    }
+                    else if (xhr.status === 401) msgError = "Credenziali non valide.";
+                    showAlert(msgError, "danger", "login-feedback");
+                    submitButton.prop('disabled', false).html(originalText);
+                }
+            });
+        });
+
+        // -------------------- REGISTER --------------------
+        $("#registerForm").submit(function (e) {
+            e.preventDefault();
+            clearAlert("register-feedback");
+
+            // ---- BUTTON LOADING STATE ----
+            const submitButton = $(this).find('button[type="submit"]');
+            const originalText = submitButton.html();
+        
+            const email = $("#register-email").val().trim();
+            const password = $("#register-password").val();
+            const confirmPassword = $("#confirm-password").val();
+            const role = $('input[name="user-role"]:checked').val();
+            const termsAccepted = $('#terms').is(':checked');
+
+            if (password !== confirmPassword) {
+                showAlert("Le password non coincidono.", "warning", "register-feedback");
+                submitButton.prop("disabled", false).html(originalText);
+                return;
+            }
+
+            if (!termsAccepted) {
+                showAlert("Accetta i Termini e Condizioni per continuare.", "warning", "register-feedback");
+                submitButton.prop("disabled", false).html(originalText);
+                return;
+            }
+
+            submitButton.prop("disabled", true).html(
+                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Registrazione...'
+            );
+            // BACKEND ACCETTA SOLO QUESTI 3 CAMPI:
+            const payload = {
+                email: email,
+                password: password,
+                role: role
+            };
+
+            $.ajax({
+                url: `${urlBaseApi}/api/auth/register`,
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(payload),
+                success: function (res) {
+                    showAlert(
+                        `Registrazione completata per ${email}. Ora puoi effettuare il login.`,
+                        "success",
+                        "register-feedback"
+                    );
+
+                    $('#registerForm')[0].reset();
+                    toggleMentorFields();
+
+                    setTimeout(() => {
+                        $('#login-tab').tab('show');
+                        $('#login-email').val(email);
+                    }, 3000);
+                },
+                error: function (xhr, status, error) {
+                    console.error("Registration error:", xhr.responseText);
+                        let msgError = "Errore durante la registrazione. Riprova.";
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            msgError = xhr.responseJSON.message;
+                        } else if (xhr.status === 409) {
+                            msgError = "Email già in uso, per favore sceglierne un'altra.";
+                        }
+                        showAlert(msgError, 'danger', 'register-feedback');
+                        submitButton.prop('disabled', false).html(originalText);
+                    }
+            });
+        });
+    });
+
+    // -------------------- COOKIE BANNER --------------------
+    document.addEventListener('DOMContentLoaded', () => {
+        const banner = document.getElementById('cookie-banner');
+        if (!localStorage.getItem('cookieConsent')) {
+            setTimeout(() => banner.classList.add('show'), 50);
+        }
+
+        document.getElementById('acceptCookies').addEventListener('click', () => {
+            localStorage.setItem('cookieConsent', 'true');
+            banner.classList.remove('show');
+            setTimeout(() => banner.style.display = 'none', 400);
+        });
+
+        document.getElementById('rejectCookies').addEventListener('click', () => {
+            localStorage.setItem('cookieConsent', 'false');
+            banner.classList.remove('show');
+            setTimeout(() => banner.style.display = 'none', 400);
+        });
+    });
+</script>
 </head>
+
 <body>
 
 <div class= "container pb-5 pt-4">
@@ -77,7 +291,7 @@
                         <div class= "card-body pb-0">
                             <div id= "login-feedback"></div>
                             <div class=" mb-3">
-                                <label for=" login-email" class="form-label">Email</label>
+                                <label for="login-email" class="form-label">Email</label>
                                 <input type= "email" class="form-control" id= "login-email" placeholder= "nome@esempio.com" required>
                             </div>
 
@@ -197,7 +411,7 @@
             </div>
 
         </div>
-        
+
         <div class="card-footer bg-white border-top border-white pt-0">
                 <button type="submit" class="btn btn-dark w-100">Registrati</button>
              </div>
