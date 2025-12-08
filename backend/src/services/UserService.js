@@ -4,14 +4,6 @@ const bcrypt = require("bcrypt");
 
 const UserRepository = require("../repositories/UserRepository");
 
-```
-id SERIAL PRIMARY KEY,
-    full_name VARCHAR(150) NOT NULL,
-    email VARCHAR(150) UNIQUE NOT NULL,
-    password_hash TEXT NOT NULL,
-    role VARCHAR(20) NOT NULL CHECK (role IN ('client', 'manager', 'admin')),
-    created_at TIMESTAMP DEFAULT NOW()
-```
 class UserService {
 
     async getAllUsers() {
@@ -27,7 +19,7 @@ class UserService {
     }
 
     async createUser(userData) {
-        // skeleton (only if admins can create users manually)
+        
         const {full_name , email, password, role} = userData
         
         if(!full_name || !email || !password || !role){
@@ -87,8 +79,6 @@ class UserService {
         return result
 
         
-
-
     }
 
     async deleteUser(id) {

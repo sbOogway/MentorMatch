@@ -2,19 +2,18 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Install dependencies first for caching
+
 COPY package*.json ./
 RUN npm install
 
-# Install nodemon globally
 RUN npm install -g nodemon
 
-# Copy the rest of the app
+
 COPY . .
 
 EXPOSE 3000
 
-# Run with nodemon for live reload
-CMD ["nodemon", "app.js"]
+
+CMD ["npm", "run", "dev"]
 
     

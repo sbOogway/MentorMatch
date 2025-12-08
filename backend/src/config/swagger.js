@@ -16,7 +16,7 @@ const options = {
     ],
   },
 
-  // Percorso ai file con annotazioni Swagger
+  
   apis: [
     "./src/routes/*.js",
     "./src/controllers/*.js"

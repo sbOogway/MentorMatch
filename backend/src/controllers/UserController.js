@@ -1,4 +1,3 @@
-// backend/src/controllers/UserController.js
 
 class UserController {
     constructor(userService) {
