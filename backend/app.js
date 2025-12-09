@@ -25,7 +25,7 @@ app.get("/", (req, res) => {
 
 swaggerDocs(app);
 
-console.log("Swagger disponibile su /api-docs");
+console.log("Swagger ready");
 
 const PORT = process.env.PORT || 3000;
 

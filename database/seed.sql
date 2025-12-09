@@ -1,6 +1,9 @@
--- ==============================
 -- SEED: USERS
--- ==============================
+
+-- ADMIN
+INSERT INTO users (full_name, email, password_hash, role)
+VALUES
+('Admin User', 'admin@example.com', '$2b$10$KqzB8QyHHCqB6FDLW7N1GuVQz.hG5OxRjIr/xJzqP2sJ7iI5UZkC2', 'admin');
 
 INSERT INTO users (full_name, email, password_hash, role)
 VALUES
@@ -9,10 +12,7 @@ VALUES
 ('Giulia Verdi', 'mentee1@example.com',  'hashedpassword', 'mentee'),
 ('Anna Russo',   'mentee2@example.com',  'hashedpassword', 'mentee');
 
-
--- ==============================
 -- SEED: MENTOR PROFILES
--- ==============================
 
 INSERT INTO mentor_profiles (user_id, bio, sectors, languages, meeting_link_template)
 SELECT id,
@@ -30,10 +30,7 @@ SELECT id,
        'https://meet.google.com/mentor2'
 FROM users WHERE email = 'mentor2@example.com';
 
-
--- ==============================
 -- SEED: AVAILABILITY SLOTS
--- ==============================
 
 -- MENTOR 1 – 2 slot
 INSERT INTO availability_slots (mentor_id, start_time, end_time)
@@ -71,10 +68,6 @@ JOIN users u ON mp.user_id = u.id
 WHERE u.email = 'mentor2@example.com';
 
 
--- ==============================
--- SEED: A SAMPLE BOOKING
--- ==============================
-
 INSERT INTO bookings (slot_id, mentor_id, mentee_id, meeting_link, status)
 SELECT 
     s.id,
@@ -89,10 +82,8 @@ WHERE u2.email = 'mentor1@example.com'
 ORDER BY s.start_time
 LIMIT 1;
 
-
--- ==============================
 -- SEED: MARK BOOKING AS COMPLETED
--- ==============================
+
 
 UPDATE bookings
 SET status = 'completed'
@@ -100,11 +91,6 @@ WHERE ctid IN (
   SELECT ctid FROM bookings WHERE status='confirmed' LIMIT 1
 );
 
-
-
--- ==============================
--- SEED: REVIEW
--- ==============================
 
 INSERT INTO reviews (booking_id, mentor_id, mentee_id, rating, comment)
 SELECT 
