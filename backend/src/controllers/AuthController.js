@@ -73,7 +73,7 @@ class AuthController {
     }
 
     try {
-      // Find user
+      
       const user = await UserRepository.findByEmail(email);
       if (!user) {
         return res.status(404).json({ error: "User not found" });

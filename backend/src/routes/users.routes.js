@@ -1,10 +1,12 @@
-import { Router } from "express";
-import UserService from "../services/UserService.js";
-import UserRepository from "../repositories/UserRepository.js";
-import UserController from "../controllers/UserController.js";
+const { Router } = require("express");
 
-import authMiddleware from "../middlewares/authMiddleware.js";
-import roleMiddleware from "../middlewares/roleMiddleware.js";
+const UserService = require("../services/UserService.js");
+const UserRepository = require("../repositories/UserRepository.js");
+const UserController = require("../controllers/UserController.js");
+
+const authMiddleware = require("../middlewares/authMiddleware.js");
+const roleMiddleware = require("../middlewares/roleMiddleware.js");
+
 
 const router = Router();
 
@@ -50,4 +52,5 @@ router.delete(
   userController.deleteUser
 );
 
-export default router;
+module.exports = router;
+// ciaooo
