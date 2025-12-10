@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang= "it">
+<head>
+    <meta charset= "UTF-8">
+    <meta name= "viewport" content= "width= device-width, initial-scale=1">
+
+    <meta name= "description" content= "MentorMatch - Esame pratico di Tecnologie Innovative per lo Sviluppo Web di I.G. e K.S.">
+
+    <title> Mentor - MentorMatch</title>
+
+    <!--Favicon-->
+    <link rel = "icon" type= "image/png" href= "images/favicon.png">
+
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <!--Style-->
+    <link type="text/css" rel="stylesheet" href="css/style.css">
+    
+    <!--Fonts-->
+    <link rel="preconnect" href="https://rsms.me/">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+
+    <!-- JS -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script>
+const apiBaseUrl = "";
+    let datiMentor = null;
+    let slotSelezionato = null;
+
+    $(document).ready(function () {
+
+        const parametriUrl = new URLSearchParams(window.location.search);
+        const mentorId = parametriUrl.get('id');
+
+        // 1) Carico i dati del mentor
+        caricaMentor(mentorId);
+
+        // 2) Carico lista disponibilità (slot)
+        caricaDisponibilita(mentorId);
+
+        // 3) Prenotazione quando clicco
+        $('#book-session-btn').on('click', function () {
+            if (!slotSelezionato) {
+                alert("Seleziona uno slot prima di prenotare.");
+                return;
+            }
+            prenotaSlot(slotSelezionato);
+        });
+
+        // 4) Pulsante condivisione (opzionale)
+        $('#share-btn').on('click', function () {
+            if (!datiMentor) return;
+
+            const datiCondivisione = {
+                title: datiMentor.full_name,
+                text: datiMentor.bio,
+                url: window.location.href
+            };
+
+            navigator.share(datiCondivisione)
+                .then(() => console.log('Condiviso'))
+                .catch((error) => console.error(error));
+        });
+    });
+
+
+    /* 
+     * CARICO DETTAGLI DEL MENTOR
+     */
+    function caricaMentor(id) {
+        $.ajax({
+            url: `${apiBaseUrl}/api/mentors/${id}`,
+            type: 'GET',
+            dataType: 'json',
+            success: function (mentor) {
+
+                datiMentor = mentor;
+
+                $('#mentor-name').text(mentor.full_name);
+                $('#mentor-bio').text(mentor.bio);
+                $('#mentor-sectors').text((mentor.sectors || []).join(", "));
+                $('#mentor-languages').text((mentor.languages || []).join(", "));
+                $('#mentor-rating').text(mentor.rating || "N.D.");
+
+            },
+            error: function () {
+                console.error("Errore nel recupero del mentor");
+                $('#mentor-details').hide();
+                $('#mentor-not-found').show();
+                document.title = "Mentor Non Trovato";
+            }
+        });
+    }
+
+
+    /*
+     * 2) CARICO GLI SLOT DI DISPONIBILITÀ
+     **/
+    function caricaDisponibilita(mentorId) {
+        $.ajax({
+            url: `${apiBaseUrl}/api/mentors/${mentorId}/availability`,
+            type: 'GET',
+            dataType: 'json',
+            success: function (slots) {
+
+                const container = $('#mentor-availability');
+                container.empty();
+
+                if (!slots || slots.length === 0) {
+                    container.html("<p class='text-muted'>Nessuna disponibilità trovata.</p>");
+                    return;
+                }
+
+                slots.forEach(slot => {
+                    if (slot.is_booked) return;
+
+                    const slotHtml = `
+                        <button class="btn btn-outline-dark w-100 text-start mb-2 slot-btn"
+                                data-id="${slot.id}">
+                            ${formatDate(slot.start_time)} → ${formatDate(slot.end_time)}
+                        </button>
+                    `;
+                    container.append(slotHtml);
+                });
+
+                // Gestisco la selezione degli slot
+                $('.slot-btn').on('click', function () {
+                    $('.slot-btn').removeClass('active');
+                    $(this).addClass('active');
+                    slotSelezionato = $(this).data('id');
+                    $("#book-session-btn").prop("disabled", false);
+                });
+
+            },
+            error: function () {
+                console.log("Errore caricamento disponibilità");
+                $('#mentor-availability').html("<p class='text-danger'>Errore nel caricamento slot</p>");
+            }
+        });
+    }
+
+
+    /*
+     * 3) PRENOTA SESSIONE
+     */
+    function prenotaSlot(slotId) {
+
+        const token = sessionStorage.getItem("token");
+        if (!token) {
+            alert("Devi effettuare il login prima di prenotare.");
+            window.location.href = "autenticazione.html";
+            return;
+        }
+
+        $.ajax({
+            url: `${apiBaseUrl}/api/booking`,
+            type: "POST",
+            contentType: "application/json",
+            headers: { "Authorization": "Bearer " + token },
+            data: JSON.stringify({ slot_id: slotId }),
+            success: function (res) {
+                alert("Prenotazione avvenuta con successo!");
+                location.reload();
+            },
+            error: function (xhr) {
+                console.error("Errore prenotazione:", xhr.responseText);
+                alert("Errore durante la prenotazione");
+            }
+        });
+    }
+
+
+    /*
+     * FUNZIONE UTILE PER FORMATTARE LE DATE
+     */
+    function formatDate(isoString) {
+        const date = new Date(isoString);
+        return date.toLocaleString("it-IT", {
+            day: "2-digit",
+            month: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+    }
+</script>
+</head>
+<body>
+
+    <div class="container py-5">
+
+        <div class= "row mb-4">
+            <div class= "col">
+                <a href="index.html" class= "link-dark text-decoration-none"><p class="small"><i
+                class= "bi bi-arrow-left"></i>Torna ai mentor</p></a>
+            </div>
+        </div>
+
+        <div id="mentor-details" class="row g-5">
+            <div class="col-md-6">
+                <img id="mentor-photo" src="images/favicon.png" alt="Immagine mentor" class="image-mentor">               
+            </div>
+
+            <!--Informazioni Mentor-->
+            <div class="col-md-6">
+                <div class="d-flex flex-column h-100">
+                    <div>
+                        <!--Settori del mentor-->
+                        <span id="mentor-sectors" class="badge bg-dark mb-2">Sector</span>
+
+                        <!--Nome mentor-->
+                        <h1 id="mentor-name" class="h2 fw-bold mb-2">Nome Mentor</h1>
+
+                        <!--Lingue parlate-->
+                        <p class="text-muted mb-3">
+                            <strong>Lingue:</strong>
+                            <span id="mentor-languages">Italiano, Inglese</span>
+                        </p>
+
+                        <!-- Rating -->
+                        <p class="h4 fw-bold mb-4">
+                            Rating: <span id="mentor-rating">4.8</span>/5
+                        </p>
+                    </div>
+
+                    <!--Bio-->
+                    <p id="mentor-bio" class="text-muted mb-4">
+                        Descrizione / bio del mentor....
+                    </p>
+
+                    <!--Disponiblità-->
+                    <div class="mb-4">
+                        <p class="mb-1 fw-bold">Disponibilità sessioni:</p>
+                        <div id="mentor-availability">
+                            <!-- Slot caricati via JS -->
+                        <span class="text-muted">Caricamento...</span>
+                    </div>
+                </div>
+                    <!--Pulsanti-->
+                    <div class="d-flex flex-column flex-sm-row gap-3 mb-4">
+                        <button id="book-session-btn" type="button" class="btn btn-dark btn-lg flex-grow-1">
+                            <i class="bi bi-calendar-check me-2"></i>
+                            Prenota sessione
+                        </button>
+                        <button type ="button" id="share-btn" class="btn btn-outline-secondary btn-lg px-3">
+                            <i class="bi bi-share"></i>
+                            <span class="visually-hidden">Condividi</span>
+                        </button>
+                       </div>
+
+               </div>
+           </div>
+        </div>
+        
+      <div id="mentor-not-found" class="alert alert-warning mt-4" role="alert">
+        ⚠️ Mentor non trovato. Verifica l'ID.
+      </div>
+
+
+    </div>
+</body>
+</html>
