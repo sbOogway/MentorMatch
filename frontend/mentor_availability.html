@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description"
+          content="MentorMatch - Esame pratico di Tecnologie Innovative per lo Sviluppo Web di I.G. e K.S.">
+
+    <link rel="preconnect" href="https://images.unsplash.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://images.unsplash.com">
+
+    <title>MentorMatch</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="images/favicon.png">
+
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link type="text/css" rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://rsms.me/">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+
+    <!-- JS -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+<script>
+const apiBaseUrl = "";
+let mentorId = null;
+
+$(document).ready(() => {
+
+    // 1) Ricavo ID mentor dal token se disponibile
+    const user = JSON.parse(sessionStorage.getItem("user") || "{}");
+    /*
+    if (user.role !== "mentor") {
+        alert("Accesso riservato ai mentor.");
+        window.location.href = "index.html";
+        return;
+    }
+*/
+    mentorId = user.id;
+
+    // Carico disponibilità
+    caricaSlot();
+
+    // Aggiungi slot
+    $("#add-slot-btn").click(function () {
+        aggiungiSlot();
+    });
+});
+
+
+/*CARICA SLOT*/
+function caricaSlot() {
+    $.ajax({
+        url: `${apiBaseUrl}/api/mentors/${mentorId}/availability`,
+        type: "GET",
+        success: function(slots) {
+
+            const container = $("#slot-list");
+            container.empty();
+
+            if (slots.length === 0) {
+                container.html("<p class='text-muted'>Nessuno slot disponibile.</p>");
+                return;
+            }
+
+            slots.forEach(slot => {
+
+                const html = `
+                    <div class="d-flex justify-content-between align-items-center border p-2 mb-2 rounded">
+                        <div>
+                            <strong>${formatDate(slot.start_time)}</strong>
+                            →
+                            <strong>${formatDate(slot.end_time)}</strong>
+                        </div>
+                        <button class="btn btn-sm btn-danger" onclick="eliminaSlot('${slot.id}')">
+                            Rimuovi
+                        </button>
+                    </div>
+                `;
+
+                container.append(html);
+            });
+        },
+        error: function() {
+            $("#slot-list").html("<p class='text-danger'>Errore nel caricamento slot.</p>");
+        }
+    });
+}
+
+
+/*AGGIUNGI SLOT*/
+function aggiungiSlot() {
+
+    const start = $("#slot-start").val();
+    const end = $("#slot-end").val();
+
+    if (!start || !end) {
+        alert("Compila entrambi i campi data/ora.");
+        return;
+    }
+
+    if (new Date(start) >= new Date(end)) {
+        alert("L'orario di inizio deve essere precedente a quello di fine.");
+        return;
+    }
+
+    const token = sessionStorage.getItem("token");
+
+    $.ajax({
+        url: `${apiBaseUrl}/api/mentors/availability`,
+        type: "POST",
+        contentType: "application/json",
+        headers: { "Authorization": "Bearer " + token },
+        data: JSON.stringify({
+            slots: [
+                { start_time: start, end_time: end }
+            ]
+        }),
+        success: function() {
+            alert("Slot aggiunto con successo!");
+            caricaSlot();  // aggiorna lista
+        },
+        error: function() {
+            alert("Errore nell'aggiunta dello slot");
+        }
+    });
+}
+
+
+/*ELIMINA SLOT*/
+function eliminaSlot(slotId) {
+
+    const token = sessionStorage.getItem("token");
+
+    $.ajax({
+        url: `${apiBaseUrl}/api/mentors/availability/${slotId}`,
+        type: "DELETE",
+        headers: { "Authorization": "Bearer " + token },
+        success: function() {
+            alert("Slot eliminato");
+            caricaSlot();
+        },
+        error: function() {
+            alert("Errore durante la rimozione");
+        }
+    });
+}
+
+
+/* 
+   FORMATTA DATA
+*/
+function formatDate(iso) {
+    const d = new Date(iso);
+    return d.toLocaleString("it-IT", {
+        day: "2-digit",
+        month: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+}
+
+ // -------------------- COOKIE BANNER --------------------
+    document.addEventListener('DOMContentLoaded', () => {
+        const banner = document.getElementById('cookie-banner');
+        if (!localStorage.getItem('cookieConsent')) {
+            setTimeout(() => banner.classList.add('show'), 50);
+        }
+
+        document.getElementById('acceptCookies').addEventListener('click', () => {
+            localStorage.setItem('cookieConsent', 'true');
+            banner.classList.remove('show');
+            setTimeout(() => banner.style.display = 'none', 400);
+        });
+
+        document.getElementById('rejectCookies').addEventListener('click', () => {
+            localStorage.setItem('cookieConsent', 'false');
+            banner.classList.remove('show');
+            setTimeout(() => banner.style.display = 'none', 400);
+        });
+    });
+</script>
+</head>
+
+<body style = "padding-top: 55px";>
+<!--Header - definito in common/header/header.html -->
+<div id ="header-placeholder"></div>
+<div class="container fluid ">
+
+    <!-- Titolo pagina -->
+    <div class="mb-4">
+        <h2 class="fw-bold">Gestione disponibilità</h2>
+        <p class="text-muted">Aggiungi, visualizza o rimuovi le tue disponibilità per le sessioni.</p>
+    </div>
+
+    <!-- Form: Aggiungi nuovo slot -->
+    <div class="card shadow-sm p-4 mb-4">
+
+        <h5 class="fw-semibold mb-3">Aggiungi nuovo slot</h5>
+
+        <div class="row g-3">
+
+            <!-- Inizio -->
+            <div class="col-md-6">
+                <label for="slot-start" class="form-label">Inizio</label>
+                <input type="datetime-local" id="slot-start" class="form-control">
+            </div>
+
+            <!-- Fine -->
+            <div class="col-md-6">
+                <label for="slot-end" class="form-label">Fine</label>
+                <input type="datetime-local" id="slot-end" class="form-control">
+            </div>
+
+        </div>
+
+        <div class="mt-3">
+            <button id="add-slot-btn" class="btn btn-dark">
+                <i class="bi bi-plus-circle me-1"></i> Aggiungi slot
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Lista degli slot attuali -->
+    <div class="mb-3">
+        <h4 class="fw-semibold">Slot disponibili</h4>
+        <p class="text-muted">Qui puoi modificare o rimuovere le disponibilità già inserite.</p>
+    </div>
+
+    <div id="slot-list">
+        <p class="text-muted">Caricamento disponibilità...</p>
+    </div>
+
+</div>
+
+
+
+<!-- Bootstrap e Footer - definito in common/footer.html -->
+<div id="footer-placeholder"></div>
+
+<!-- Bootstrap -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq"
+        crossorigin="anonymous"></script>
+<script src= "js/headerfooterloader.js"></script>
+</body>
+</html>
