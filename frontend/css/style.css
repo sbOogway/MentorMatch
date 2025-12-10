@@ -1,0 +1,175 @@
+
+:root {
+    --bs-primary: #0d6efd;
+    --bs-success: #198754;
+    --bs-danger: #dc3545;
+}
+
+body {
+    font-family: Comic, sans-serif;
+    font-feature-settings: 'liga' 1, 'calt' 1;
+}
+
+input:focus, textarea:focus, select:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.25) !important;
+}
+
+.bg-slightly-dark {
+     background-color: #f5f5f5;
+}
+
+.text-description-hero {
+    max-width: 700px;
+    font-size: 1.25rem;
+    line-height: 1.5;
+    color: #808080;
+    margin-bottom: 1rem;
+}
+
+.search-hero-form {
+    max-width: 400px;
+}
+
+/*
+
+#filterSection {
+    border-right: 1px solid #e5e5e5;
+    padding-right: 1rem;
+}
+
+.filters-form p {
+    margin-bottom: 0.3rem;
+}
+
+.filters-form .form-check-label {
+    font-size: 0.95rem;
+}
+
+.filters-form .form-check-input {
+    cursor: pointer;
+}
+*/
+#mobileFilterToggle {
+    font-size: 0.9rem;
+}
+
+/* Collapse arrow alignment */
+.bi-chevron-down {
+    font-size: 0.8rem;
+}
+
+#mentors {
+    min-height: 200px; 
+}
+
+/* Mentor card (equivalente alle card dei prodotti) */
+.mentor-card {
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    transition: transform 0.3s ease;
+    background: #fff;
+}
+
+.mentor-card:hover {
+    transform: scale(1.03);
+}
+
+.mentor-img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 0.375rem;
+}
+
+@keyframes caricamento {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.ratio-container {
+    position: relative;
+    overflow: hidden;
+}
+
+/* Skeleton loading */
+.mentor-skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loadingAnim 1.5s infinite;
+    border-radius: 0.375rem;
+}
+
+@keyframes loadingAnim {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.cookie-banner {
+     position: fixed; bottom: 0; left: 0; right: 0;
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    padding: 1rem;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
+    z-index: 2000;
+    opacity: 0; transform: translateY(100%); visibility: hidden;
+    transition: all 0.4s ease-in-out;
+}
+.cookie-banner.show {
+    opacity: 1; transform: translateY(0); visibility: visible;
+}
+.cookie-banner .btn {
+    min-width: 96px;
+}
+.cookie-banner .form-check-input:disabled {
+    cursor: not-allowed;
+    background-color: #e9ecef;
+    border-color: #ced4da;
+}
+
+/* -----------------------------------
+   RESPONSIVE (mobile)
+----------------------------------- */
+
+@media (max-width: 768px) {
+
+    .cookie-banner .d-flex.align-items-center {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        width: 100%;
+    }
+
+    .cookie-banner .form-check {
+        margin-bottom: 0.25rem;
+    }
+
+    .cookie-banner .btn {
+        width: 50%;
+        margin-left: 0 !important;
+    }
+
+    .cookie-banner #acceptCookies,
+    .cookie-banner #rejectCookies {
+        margin-top: 0.25rem;
+    }
+
+
+    .text-description-hero {
+        max-width: 100%;
+        font-size: 1rem;
+        line-height: 1.4;
+    }
+
+    .search-hero-form {
+        max-width: 100%;
+    }
+}
+
+@supports (font-variation-settings: normal) {
+    :root { font-family: InterVariable, sans-serif; }
+}
