@@ -3,7 +3,7 @@
 -- ADMIN
 INSERT INTO users (full_name, email, password_hash, role)
 VALUES
-('Admin User', 'admin@example.com', '$2b$10$KqzB8QyHHCqB6FDLW7N1GuVQz.hG5OxRjIr/xJzqP2sJ7iI5UZkC2', 'admin');
+('Admin User', 'admin@example.com', '$2b$10$YzXUNLiqD7QsYRihe4HSZOQtO.h7ZD7gjXEVERnxGsuZBpv3vocqS', 'admin');
 
 INSERT INTO users (full_name, email, password_hash, role)
 VALUES

@@ -15,6 +15,8 @@ services:
       DB_USER: postgres
       DB_PASSWORD: postgres
       DB_NAME: mentormatch
+    env_file:
+      - ./backend/.env
     volumes:
       - ./backend:/app
       - /app/node_modules
@@ -32,11 +34,11 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: mentormatch
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d mentormatch"]
       interval: 3s
-      timeout: 3s
-      retries: 10
-      start_period: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 10s
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./database/schema.sql:/docker-entrypoint-initdb.d/1_schema.sql:ro

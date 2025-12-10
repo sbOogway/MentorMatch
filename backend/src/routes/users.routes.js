@@ -20,35 +20,35 @@ router.use(authMiddleware);
 // GET /users (admin only)
 router.get(
   "/",
-  roleMiddleware(["admin"]),
+  roleMiddleware("admin"),
   userController.getAllUsers
 );
 
 // GET /users/:id (admin only)
 router.get(
   "/:id",
-  roleMiddleware(["admin"]),
+  roleMiddleware("admin"),
   userController.getUserById
 );
 
 // POST /users (admin only)
 router.post(
   "/",
-  roleMiddleware(["admin"]),
+  roleMiddleware("admin"),
   userController.createUser
 );
 
 // PUT /users/:id (admin only)
 router.put(
   "/:id",
-  roleMiddleware(["admin"]),
+  roleMiddleware("admin"),
   userController.updateUser
 );
 
 // DELETE /users/:id (admin only)
 router.delete(
   "/:id",
-  roleMiddleware(["admin"]),
+  roleMiddleware("admin"),
   userController.deleteUser
 );
 
@@ -68,7 +68,7 @@ module.exports = router;
  *     summary: Get all users (admin only)
  *     tags: [Users]
  *     security:
- *       - bearerAuth: []
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: List of all users
@@ -76,20 +76,16 @@ module.exports = router;
  *           application/json:
  *             example:
  *               users:
- *                 - id: 1
+ *                 - id: "550e8400-e29b-41d4-a716-446655440000"
  *                   full_name: "Mario Rossi"
  *                   email: "mario@example.com"
  *                   role: "mentor"
- *                 - id: 2
+ *                 - id: "550e8400-e29b-41d4-a716-446655440111"
  *                   full_name: "Luca Bianchi"
  *                   email: "luca@example.com"
  *                   role: "mentee"
  *       403:
  *         description: Forbidden — only admin can access
- *         content:
- *           application/json:
- *             example:
- *               error: "Access denied — admin only"
  *       500:
  *         description: Internal server error
  */
@@ -101,21 +97,22 @@ module.exports = router;
  *     summary: Get a user by ID (admin only)
  *     tags: [Users]
  *     security:
- *       - bearerAuth: []
+ *       - BearerAuth: []
  *     parameters:
  *       - name: id
  *         in: path
- *         description: User ID
+ *         description: User ID (UUID)
  *         required: true
  *         schema:
- *           type: integer
+ *           type: string
+ *           format: uuid
  *     responses:
  *       200:
  *         description: User found
  *         content:
  *           application/json:
  *             example:
- *               id: 5
+ *               id: "550e8400-e29b-41d4-a716-446655440000"
  *               full_name: "Sara Verdi"
  *               email: "sara@example.com"
  *               role: "mentor"
@@ -123,10 +120,6 @@ module.exports = router;
  *         description: Forbidden — only admin can access
  *       404:
  *         description: User not found
- *         content:
- *           application/json:
- *             example:
- *               error: "User not found"
  *       500:
  *         description: Internal server error
  */
@@ -138,7 +131,7 @@ module.exports = router;
  *     summary: Create a new user (admin only)
  *     tags: [Users]
  *     security:
- *       - bearerAuth: []
+ *       - BearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -153,17 +146,13 @@ module.exports = router;
  *             properties:
  *               full_name:
  *                 type: string
- *                 example: Giovanni Neri
  *               email:
  *                 type: string
- *                 example: giovanni@example.com
  *               password:
  *                 type: string
- *                 example: StrongPassword123!
  *               role:
  *                 type: string
  *                 enum: [mentor, mentee, admin]
- *                 example: mentor
  *     responses:
  *       201:
  *         description: User created successfully
@@ -172,7 +161,7 @@ module.exports = router;
  *             example:
  *               message: "User created successfully"
  *               user:
- *                 id: 10
+ *                 id: "550e8400-e29b-41d4-a716-446655440333"
  *                 full_name: "Giovanni Neri"
  *                 email: "giovanni@example.com"
  *                 role: "mentor"
@@ -182,10 +171,6 @@ module.exports = router;
  *         description: Forbidden — only admin can access
  *       409:
  *         description: Email already exists
- *         content:
- *           application/json:
- *             example:
- *               error: "Email already exists"
  *       500:
  *         description: Internal server error
  */
@@ -197,14 +182,15 @@ module.exports = router;
  *     summary: Update a user (admin only)
  *     tags: [Users]
  *     security:
- *       - bearerAuth: []
+ *       - BearerAuth: []
  *     parameters:
  *       - name: id
  *         in: path
- *         description: User ID
+ *         description: User ID (UUID)
  *         required: true
  *         schema:
- *           type: integer
+ *           type: string
+ *           format: uuid
  *     requestBody:
  *       required: true
  *       content:
@@ -214,16 +200,13 @@ module.exports = router;
  *             properties:
  *               full_name:
  *                 type: string
- *                 example: Updated Name
  *               email:
  *                 type: string
- *                 example: updated@example.com
  *               password:
  *                 type: string
  *               role:
  *                 type: string
  *                 enum: [mentor, mentee, admin]
- *                 example: mentor
  *     responses:
  *       200:
  *         description: User updated successfully
@@ -232,7 +215,7 @@ module.exports = router;
  *             example:
  *               message: "User updated successfully"
  *               user:
- *                 id: 10
+ *                 id: "550e8400-e29b-41d4-a716-446655440000"
  *                 full_name: "Updated Name"
  *                 email: "updated@example.com"
  *                 role: "mentor"
@@ -253,20 +236,18 @@ module.exports = router;
  *     summary: Delete a user (admin only)
  *     tags: [Users]
  *     security:
- *       - bearerAuth: []
+ *       - BearerAuth: []
  *     parameters:
  *       - name: id
  *         in: path
+ *         description: User ID (UUID)
  *         required: true
  *         schema:
- *           type: integer
+ *           type: string
+ *           format: uuid
  *     responses:
  *       200:
  *         description: User deleted successfully
- *         content:
- *           application/json:
- *             example:
- *               message: "User deleted successfully"
  *       403:
  *         description: Forbidden — only admin can access
  *       404:
