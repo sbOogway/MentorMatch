@@ -3,6 +3,21 @@ const pool = require("../config/database");
 const bcrypt = require("bcrypt");
 
 class UserRepository {
+
+  static async getAllUsers() {
+      try {
+          const result = await pool.query(`
+              SELECT id, full_name, email, role, created_at 
+              FROM users
+              ORDER BY id ASC
+          `);
+          return result.rows;
+      } catch (err) {
+          console.error("Error in getAllUsers:", err);
+          throw err;
+      }
+  }
+
   static async findByEmail(email) {
     try {
       const query = "SELECT * FROM users WHERE email = $1 LIMIT 1";

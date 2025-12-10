@@ -7,9 +7,8 @@ exports.getLoggedInUserProfile = async (req, res) => {
 
     try {
        
-        const profile = await userService.getProfileById(userId);
+        const profile = await userService.getUserById(userId);
 
-       
         if (!profile) {
            
             return res.status(404).json({ message: "Utente non trovato." });
