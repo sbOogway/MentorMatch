@@ -30,6 +30,9 @@ input:focus, textarea:focus, select:focus {
     max-width: 400px;
 }
 
+.hidden{
+    display:none;
+}
 /*
 
 #filterSection {
