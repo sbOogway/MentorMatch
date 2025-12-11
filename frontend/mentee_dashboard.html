@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description"
+          content="MentorMatch - Esame pratico di Tecnologie Innovative per lo Sviluppo Web di I.G. e K.S.">
+
+    <link rel="preconnect" href="https://images.unsplash.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://images.unsplash.com">
+
+    <title>Dashboard Mentee- MentorMatch</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="images/favicon.png">
+
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link type="text/css" rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://rsms.me/">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+
+    <!-- JS -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script>
+const apiBaseUrl = "";
+
+$(document).ready(() => {
+
+    // Controllo login
+    const user = JSON.parse(sessionStorage.getItem("user") || "{}");
+    /*
+    if (user.role !== "mentee") {
+        alert("Accesso riservato ai mentee.");
+        window.location.href = "index.html";
+        return;
+    }
+    */
+
+    caricaPrenotazioni();
+    caricaMessaggi();
+});
+
+
+/*CARICO LE PRENOTAZIONI*/
+function caricaPrenotazioni() {
+
+    $.ajax({
+        url: `${apiBaseUrl}/api/booking/my`,
+        type: "GET",
+        success: function(prenotazioni) {
+
+            const futureBox = $("#future-sessions");
+            const pastBox = $("#past-sessions");
+
+            futureBox.empty();
+            pastBox.empty();
+
+            if (prenotazioni.length === 0) {
+                futureBox.html("<p class='text-muted'>Nessuna prenotazione.</p>");
+                return;
+            }
+
+            prenotazioni.forEach(p => {
+
+                const start = new Date(p.start_time);
+                const end = new Date(p.end_time);
+                const now = new Date();
+
+                const cardHtml = `
+                <div class="session-card d-flex justify-content-between align-items-center mb-3 p-3 shadow-sm rounded">
+
+                <!-- Info -->
+                <div>
+                     <h5 class="fw-bold mb-1">
+                     <i class="bi bi-person-workspace me-1"></i>${p.mentor_name}
+                     </h5>
+
+                <div class="text-muted small">
+                <i class="bi bi-calendar-event me-1"></i>
+                ${formatDate(start)} → ${formatDate(end)}
+            </div>
+        </div>
+
+                 <!-- Pulsante cancella -->
+                ${ start > now ? `
+                <button class="btn btn-outline-danger btn-sm" onclick="cancella(${p.id})">
+                    <i class="bi bi-x-circle me-1"></i> Cancella
+                </button>
+            ` : `` }
+
+            </div>
+           `;
+
+
+                if (start > now && p.status === "scheduled") {
+                    futureBox.append(cardHtml);
+                } else {
+                    pastBox.append(cardHtml);
+                }
+            });
+
+        },
+        error: function() {
+            $("#future-sessions").html("<p class='text-danger'>Errore nel caricamento prenotazioni</p>");
+        }
+    });
+}
+
+
+/*CANCELLA UNA SESSIONE*/
+function cancella(id) {
+
+    const token = sessionStorage.getItem("token");
+
+    $.ajax({
+        url: `${apiBaseUrl}/api/booking/${id}/cancel`,
+        type: "POST",
+        headers: { "Authorization": "Bearer " + token },
+        success: () => {
+            alert("Sessione cancellata.");
+            caricaPrenotazioni();
+        },
+        error: () => {
+            alert("Errore durante la cancellazione.");
+        }
+    });
+}
+
+function caricaMessaggi() {
+    $.ajax({
+        url: `${apiBaseUrl}/api/messages/my`,
+        type: "GET",
+        success: function(messages) {
+
+            const box = $("#messages-list");
+            box.empty();
+
+            if (!messages || messages.length === 0) {
+                box.html("<p class='text-muted'>Nessun messaggio.</p>");
+                return;
+            }
+
+            messages.forEach(m => {
+                const html = `
+                    <div class="p-3 mb-3 rounded shadow-sm bg-light">
+                        <div class="fw-bold">${m.from_name}</div>
+                        <div class="text-muted small mb-1">${formatDate(new Date(m.timestamp))}</div>
+                        <div>${m.text}</div>
+                    </div>
+                `;
+                box.append(html);
+            });
+
+        },
+        error: function() {
+            $("#messages-list").html("<p class='text-danger'>Errore nel caricamento messaggi</p>");
+        }
+    });
+}
+
+
+/*FORMATTA DATA*/
+function formatDate(d) {
+    return d.toLocaleString("it-IT", {
+        day: "2-digit",
+        month: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+}
+
+// -------------------- COOKIE BANNER --------------------
+    document.addEventListener('DOMContentLoaded', () => {
+        const banner = document.getElementById('cookie-banner');
+        if (!localStorage.getItem('cookieConsent')) {
+            setTimeout(() => banner.classList.add('show'), 50);
+        }
+
+        document.getElementById('acceptCookies').addEventListener('click', () => {
+            localStorage.setItem('cookieConsent', 'true');
+            banner.classList.remove('show');
+            setTimeout(() => banner.style.display = 'none', 400);
+        });
+
+        document.getElementById('rejectCookies').addEventListener('click', () => {
+            localStorage.setItem('cookieConsent', 'false');
+            banner.classList.remove('show');
+            setTimeout(() => banner.style.display = 'none', 400);
+        });
+    });
+</script>
+</head>
+
+<body style="padding-top: 55px;">
+
+<div id="header-placeholder"></div>
+
+<div class="container py-5">
+    <div class="mb-5 text-center">
+    <h2 class="fw-bold mb-4">Dashboard Mentee</h2>
+    </div>
+    <!-- Sezione sessioni future -->
+    <div class="card shadow-sm p-4 mb-4">
+        <h4 class="fw-semibold mb-3">
+        <i class="bi bi-calendar-check text-primary me-1"></i> Sessioni future
+        </h4>
+
+        <div id="future-sessions">
+            <p class="text-muted">Caricamento...</p>
+        </div>
+    </div>
+
+
+    <!-- Sezione sessioni passate -->
+    <div class="card shadow-sm p-4 mb-4">
+        <h4 class="fw-semibold mb-3">
+        <i class="bi bi-clock-history me-1"></i> Sessioni passate
+        </h4>
+
+        <div id="past-sessions">
+            <p class="text-muted">Caricamento...</p>
+        </div>
+    </div>
+
+    <!-- MESSAGGI -->
+<div class="card shadow-sm p-4 mb-4">
+        <h4 class="fw-semibold mb-3">
+        <i class="bi bi-chat-dots text-info me-1"></i>Messaggi
+        </h4>
+
+        <div id="messages-list">
+            <p class="text-muted">Caricamento...</p>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- Cookie Banner -->
+<div id="cookie-banner" class="cookie-banner">
+    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+        <div class="mb-2 mb-md-0 small">
+            Utilizziamo solo cookie essenziali per il funzionamento del sito. Consulta la nostra
+            <a href="../legal/privacy.html" class="link-dark text-decoration-underline">Privacy Policy</a> e
+            <a href="../legal/tos.html" class="link-dark text-decoration-underline">Termini di Servizio</a>.
+        </div>
+        <div class="d-flex align-items-center">
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="essentialCookies" checked disabled>
+                <label class="form-check-label small" for="essentialCookies">Essenziali</label>
+            </div>
+            <div class="form-check form-check-inline ms-2">
+                <input class="form-check-input" type="checkbox" id="analyticsCookies" disabled>
+                <label class="form-check-label small" for="analyticsCookies">Analitici</label>
+            </div>
+            <div class="form-check form-check-inline ms-2">
+                <input class="form-check-input" type="checkbox" id="marketingCookies" disabled>
+                <label class="form-check-label small" for="marketingCookies">Marketing</label>
+            </div>
+            <button id="rejectCookies" class="btn btn-secondary btn-sm ms-3">Rifiuta</button>
+            <button id="acceptCookies" class="btn btn-dark btn-sm ms-2">Accetta</button>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap e Footer - definito in common/footer.html -->
+<div id="footer-placeholder"></div>
+
+<!-- Bootstrap -->
+ <script src= "js/headerfooterloader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq"
+        crossorigin="anonymous"></script>
+
+</body>
+</html>
