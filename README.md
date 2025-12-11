@@ -7,6 +7,6 @@ Piattaforma web per mettere in contatto **mentor** e **mentees**, con funzioni d
 
 ## 👥 Team
 - [526217] – [Kaur Sukhdeep ]
-- [MATRICOLA COMPAGNO] – [NOME COMPAGNO]
+- 
 
 ---
