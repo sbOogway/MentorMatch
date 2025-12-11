@@ -37,9 +37,9 @@
             const userData = JSON.parse(localStorage.getItem('userData'));
             if(token && userData){
                 if(userData.role === "mentor"){
-                    window.location.href = '../mentor-dashboard.html';
+                    window.location.href = '../mentor_dashboard.html';
                 }else{
-                   window.location.href = '../mentee-dashboard.html';
+                   window.location.href = '../mentee_dashboard.html';
 
               }
               return;
@@ -131,9 +131,9 @@
 
                     // Redirect in base al ruolo
                     if (res.user.role === "mentor") {
-                        window.location.href = "../mentor-dashboard.html";
+                        window.location.href = "../mentor_dashboard.html";
                     } else {
-                        window.location.href = "../mentee-dashboard.html";
+                        window.location.href = "../mentee_dashboard.html";
                     }
                 },
                 error: function (xhr, status, error) {

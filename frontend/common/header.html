@@ -16,44 +16,24 @@
                 <!--Sessioni -->
               <li class= "nav-item ms-3">
                 <a class= "btn btn-outline-dark border border-dark border-opacity-25 position-relative"
-                href= "dashboard-router.html"
+                href= "dashboard_router.html"
                 title= "Your Sessions " aria label= "Your Sessions">
                 <i class= "bi bi-calendar-check"></i>
 
-                <span class= "positon-absolute top-0 start-100 badge rounded-pill bg-dark"
+                <span class= "position-absolute top-0 start-100 badge rounded-pill bg-dark"
                 style= "transform: translate(-65%, -30%);">0</span>
                </a>
             </li>
             
             <li class="nav-item ms-3">
-    <a id="account-link" class="btn btn-outline-dark border border-dark border-opacity-25"
-       title="Account" aria-label="Account">
-        <i class="bi bi-person-circle"></i>
-    </a>
-</li>
+                <a id="account-link" class="btn btn-outline-dark border border-dark border-opacity-25"
+                title="Account" aria-label="Account">
+                <i class="bi bi-person-circle"></i>
+            </a>
+                 </li>
             </ul>
         </div>
      </div>
 </nav>
 
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-    const accountLink = document.getElementById("account-link");
-    const userData = JSON.parse(localStorage.getItem("userData"));
-    
-    if (!accountLink) return;
 
-    // Se NON loggato → manda a autenticazione
-    if (!userData) {
-        accountLink.href = "../auth/autenticazione.html";
-        return;
-    }
-
-    // Se loggato → manda alla dashboard corretta
-    if (userData.role === "mentor") {
-        accountLink.href = "../dashboard/mentor-dashboard.html";
-    } else {
-        accountLink.href = "../dashboard/mentee-dashboard.html";
-    }
-});
-</script>

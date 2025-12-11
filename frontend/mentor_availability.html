@@ -35,13 +35,13 @@ $(document).ready(() => {
 
     // 1) Ricavo ID mentor dal token se disponibile
     const user = JSON.parse(sessionStorage.getItem("user") || "{}");
-    /*
+    
     if (user.role !== "mentor") {
         alert("Accesso riservato ai mentor.");
         window.location.href = "index.html";
         return;
     }
-*/
+
     mentorId = user.id;
 
     // Carico disponibilità
