@@ -31,13 +31,12 @@ const apiBaseUrl = "";
 
 $(document).ready(() => {
 
-    // Controllo login
-    const user = JSON.parse(sessionStorage.getItem("user") || "{}");
-    
-    if (user.role !== "mentee") {
+    const token = localStorage.getItem("sessionToken");
+    const user =JSON.parse(localStorage.getItem("userData"));
+
+    if(!token || !user || user.role?.toLowerCase() !== "mentee"){
         alert("Accesso riservato ai mentee.");
-        window.location.href = "index.html";
-        return;
+        window.loaction.href = "index.html"
     }
     
 
