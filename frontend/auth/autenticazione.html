@@ -36,14 +36,11 @@
             const token = localStorage.getItem('sessionToken');
             const userData = JSON.parse(localStorage.getItem('userData'));
             if(token && userData){
-                if(userData.role === "mentor"){
-                    window.location.href = '../mentor_dashboard.html';
-                }else{
-                   window.location.href = '../mentee_dashboard.html';
-
+                userData.role= userData.role.toLowerCase().trim();
+                localStorage.setItem("userData", JSON.stringify(userData));
               }
               return;
-            }
+            
 
             //Handle tab=login/ tab=register in URL
             const urlParams = new URLSearchParams(window.location.search);
@@ -87,7 +84,7 @@
                 $(`#${containerId} .alert`).remove();
             }
 
-        // -------------------- ROLE SWITCH (MENTOR FIELDS) --------------------
+        // ROLE SWITCH (MENTOR FIELDS)
         function toggleMentorFields() {
             const role = $('input[name="user-role"]:checked').val();
             if (role === "mentor") {
@@ -100,11 +97,11 @@
         $('input[name="user-role"]').change(toggleMentorFields);
         toggleMentorFields();
 
-        // -------------------- LOGIN --------------------
+        //LOGIN
         $("#loginForm").submit(function (e) {
             e.preventDefault();
             clearAlert("login-feedback");
-            // --- BUTTON LOADING STATE ---
+            // BUTTON LOADING STATE
             const submitButton = $(this).find('button[type="submit"]');
             const originalText = submitButton.html();
             submitButton.prop("disabled", true).html(
@@ -126,11 +123,14 @@
                 contentType: "application/json",
                 data: JSON.stringify({ email, password }),
                 success: function (res) {
+                    const user = res.user;
+                    user.role= user.role.toLowerCase().trim();
+
                     localStorage.setItem("sessionToken", res.token);
                     localStorage.setItem("userData", JSON.stringify(res.user));
 
                     // Redirect in base al ruolo
-                    if (res.user.role === "mentor") {
+                    if (user.role === "mentor") {
                         window.location.href = "../mentor_dashboard.html";
                     } else {
                         window.location.href = "../mentee_dashboard.html";
@@ -149,12 +149,12 @@
             });
         });
 
-        // -------------------- REGISTER --------------------
+        //  REGISTER
         $("#registerForm").submit(function (e) {
             e.preventDefault();
             clearAlert("register-feedback");
 
-            // ---- BUTTON LOADING STATE ----
+          
             const submitButton = $(this).find('button[type="submit"]');
             const originalText = submitButton.html();
         
@@ -179,7 +179,7 @@
             submitButton.prop("disabled", true).html(
                 '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Registrazione...'
             );
-            // BACKEND ACCETTA SOLO QUESTI 3 CAMPI:
+           
             const payload = {
                 email: email,
                 password: password,
@@ -221,7 +221,7 @@
         });
     });
 
-    // -------------------- COOKIE BANNER --------------------
+    //COOKIE BANNER
     document.addEventListener('DOMContentLoaded', () => {
         const banner = document.getElementById('cookie-banner');
         if (!localStorage.getItem('cookieConsent')) {
