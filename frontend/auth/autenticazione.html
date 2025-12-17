@@ -35,11 +35,10 @@
             //Token
             const token = localStorage.getItem('sessionToken');
             const userData = JSON.parse(localStorage.getItem('userData'));
-            if(token && userData){
+            if(token && userData && userData.role){
                 userData.role= userData.role.toLowerCase().trim();
                 localStorage.setItem("userData", JSON.stringify(userData));
               }
-              return;
             
 
             //Handle tab=login/ tab=register in URL
@@ -127,7 +126,7 @@
                     user.role= user.role.toLowerCase().trim();
 
                     localStorage.setItem("sessionToken", res.token);
-                    localStorage.setItem("userData", JSON.stringify(res.user));
+                    localStorage.setItem("userData", JSON.stringify(user));
 
                     // Redirect in base al ruolo
                     if (user.role === "mentor") {
