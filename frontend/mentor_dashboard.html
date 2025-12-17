@@ -31,13 +31,12 @@ const apiBaseUrl = "";
 let mentorId = null;
 $(document).ready(() => {
 
-    const user = JSON.parse(sessionStorage.getItem("user") || "{}");
+   const token = localStorage.getItem("sessionToken");
+    const user =JSON.parse(localStorage.getItem("userData"));
 
-    
-    if (user.role !== "mentor") {
+    if(!token || !user || user.role?.toLowerCase() !== "mentor"){
         alert("Accesso riservato ai mentor.");
-        window.location.href = "index.html";
-        return;
+        window.loaction.href = "index.html"
     }
     
 
