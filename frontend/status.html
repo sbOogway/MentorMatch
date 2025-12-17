@@ -78,7 +78,7 @@
         let contaSuccessi = 0;
         let contaErrori = 0;
 
-        /*ENDPOINT DA TESTARE - MENTORMATCH*/
+        
         const endpointDaTestare = {
             autenticazione: [
                 {metodo: "POST", endpoint: "/api/auth/register", nome: "Registrazione", pubblico: true},
@@ -112,13 +112,13 @@
             ]
         };
 
-        /*INIZIALIZZAZIONE*/
+       
         $(document).ready(function () {
             verificaStatoApi();
             avviaAggiornamentoAutomatico();
         });
 
-        /*FUNZIONE PRINCIPALE DI TEST*/
+        
         function verificaStatoApi() {
             $("#btn-aggiorna").prop("disabled", true);
             $("#btn-aggiorna i").addClass("spin");
@@ -141,7 +141,7 @@
             });
         }
 
-        /*TEST SINGOLO ENDPOINT*/
+       
         function testaEndpoint(categoria, endpoint) {
             return new Promise((resolve) => {
                 const tempoInizio = Date.now();
@@ -152,13 +152,13 @@
                     timeout: 5000
                 };
 
-                // Per evitare side-effect su POST/PUT/DELETE usiamo OPTIONS
+                
                 if (endpoint.metodo === "POST" || endpoint.metodo === "PUT" || endpoint.metodo === "DELETE") {
                     metodoTest = "OPTIONS";
                     opzioniAjax.method = metodoTest;
                 }
 
-                // Se richiede auth, proviamo ad usare il token
+                
                 if (endpoint.richiedeAuth) {
                     const token = localStorage.getItem("sessionToken");
                     if (token) {
@@ -189,7 +189,7 @@
                             stato = "warning";
                             tempiRisposta.push(tempoRisposta);
                         } else if (xhr.status === 404) {
-                            // Per endpoint con id fittizi tipo /123 lo consideriamo "limitato"
+                            // Per endpoint con id fittizi tipo /123 -> "limitato"
                             if (endpoint.endpoint.match(/\/123/)) {
                                 stato = "warning";
                                 tempiRisposta.push(tempoRisposta);
@@ -214,7 +214,7 @@
             });
         }
 
-        /*AGGIORNA CARD SINGOLO ENDPOINT*/
+        
         function aggiornaEndpointUI(categoria, endpoint, stato, tempoRisposta) {
             let badgeClass = "bg-danger";
             let icona = "x-circle";
@@ -268,7 +268,7 @@
             $(`#stato-${categoria}`).append(html);
         }
 
-        /*STATISTICHE GLOBALI*/
+       
         function aggiornaStatistiche() {
             const tuttiEndpoint = Object.values(endpointDaTestare).flat();
             const endpointAttivi = contaSuccessi;
@@ -314,7 +314,7 @@
                 clearInterval(intervalloAggiornamento);
             }
         });
-// -------------------- COOKIE BANNER --------------------
+
     document.addEventListener('DOMContentLoaded', () => {
         const banner = document.getElementById('cookie-banner');
         if (!localStorage.getItem('cookieConsent')) {
@@ -356,7 +356,7 @@
                 </div>
             </div>
 
-            <!-- Riepilogo generale -->
+            
             <div class="row mb-4">
                 <div class="col-lg-3 col-md-6 mb-3">
                     <div class="card h-100">
@@ -404,7 +404,7 @@
                 </div>
             </div>
 
-            <!-- Stato dettagliato per categoria -->
+            
             <div class="row">
                 <div class="col-12">
                     <div class="card">
