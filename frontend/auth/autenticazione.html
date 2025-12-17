@@ -28,7 +28,7 @@
             integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 
     <script>
-        const urlBaseApi= ""; //<<--URL del backend 
+        const urlBaseApi= "http://localhost:3000"; 
 
         $(document).ready(function (){
 
@@ -160,6 +160,9 @@
             const email = $("#register-email").val().trim();
             const password = $("#register-password").val();
             const confirmPassword = $("#confirm-password").val();
+            const firstName = $("#first-name").val().trim();
+            const lastName = $("#last-name").val().trim();
+
             const role = $('input[name="user-role"]:checked').val();
             const termsAccepted = $('#terms').is(':checked');
 
@@ -169,6 +172,11 @@
                 return;
             }
 
+            if(!firstName || !lastName){
+                showAlert("Inserisci nome e cognome. ", "warning", "register-feedback");
+                submitButton.prop("disabled", false).html(originalText);
+                return;
+            }
             if (!termsAccepted) {
                 showAlert("Accetta i Termini e Condizioni per continuare.", "warning", "register-feedback");
                 submitButton.prop("disabled", false).html(originalText);
@@ -182,6 +190,7 @@
             const payload = {
                 email: email,
                 password: password,
+                full_name: `${firstName} ${lastName}`,
                 role: role
             };
 
@@ -206,13 +215,11 @@
                     }, 3000);
                 },
                 error: function (xhr, status, error) {
-                    console.error("Registration error:", xhr.responseText);
+                    
                         let msgError = "Errore durante la registrazione. Riprova.";
-                        if (xhr.responseJSON && xhr.responseJSON.message) {
-                            msgError = xhr.responseJSON.message;
-                        } else if (xhr.status === 409) {
-                            msgError = "Email già in uso, per favore sceglierne un'altra.";
-                        }
+                        if (xhr.responseJSON ) {
+                            msgError = xhr.responseJSON.message || xhr.responseJSON.error || msg.Error;
+                        } 
                         showAlert(msgError, 'danger', 'register-feedback');
                         submitButton.prop('disabled', false).html(originalText);
                     }
