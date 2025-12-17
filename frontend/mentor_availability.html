@@ -167,7 +167,7 @@ function formatDate(iso) {
 }
 
  // -------------------- COOKIE BANNER --------------------
-    document.addEventListener('DOMContentLoaded', () => {
+ document.addEventListener('DOMContentLoaded', () => {
         const banner = document.getElementById('cookie-banner');
         if (!localStorage.getItem('cookieConsent')) {
             setTimeout(() => banner.classList.add('show'), 50);
