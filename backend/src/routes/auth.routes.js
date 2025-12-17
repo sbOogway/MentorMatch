@@ -2,14 +2,15 @@ const express = require("express");
 const router = express.Router();
 const AuthController = require("../controllers/AuthController");
 const ProfileController = require("../controllers/ProfileController")
+const authMiddleware = require("../middlewares/authMiddleware")
 router.post("/register", AuthController.register);
 router.post("/login", AuthController.login);
 
 // GET /api/auth/me  
-router.get("/me",ProfileController.getLoggedInUserProfile);
+router.get("/me", authMiddleware, ProfileController.getLoggedInUserProfile);
 
 // PUT /api/auth/me
-router.put("/me",ProfileController.updateLoggedInUserProfile);
+router.put("/me", authMiddleware, ProfileController.updateLoggedInUserProfile);
 
 module.exports = router;
 
