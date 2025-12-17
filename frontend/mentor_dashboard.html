@@ -36,7 +36,8 @@ $(document).ready(() => {
 
     if(!token || !user || user.role?.toLowerCase() !== "mentor"){
         alert("Accesso riservato ai mentor.");
-        window.loaction.href = "index.html"
+        window.location.href = "index.html";
+        return;
     }
     
 
@@ -47,7 +48,7 @@ $(document).ready(() => {
 });
 
 
-/*CARICA SESSIONI DEL MENTOR */
+
 function caricaSessioni() {
 
     $.ajax({
@@ -173,7 +174,7 @@ function caricaMessaggi() {
 }
 
 
-/*FORMATTA DATA*/
+
 function formatDate(d) {
     return d.toLocaleString("it-IT", {
         day: "2-digit",
@@ -183,7 +184,6 @@ function formatDate(d) {
     });
 }
 
-// -------------------- COOKIE BANNER --------------------
     document.addEventListener('DOMContentLoaded', () => {
         const banner = document.getElementById('cookie-banner');
         if (!localStorage.getItem('cookieConsent')) {
