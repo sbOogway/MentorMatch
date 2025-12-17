@@ -36,7 +36,8 @@ $(document).ready(() => {
 
     if(!token || !user || user.role?.toLowerCase() !== "mentee"){
         alert("Accesso riservato ai mentee.");
-        window.loaction.href = "index.html"
+        window.location.href = "index.html";
+        return;
     }
     
 
@@ -45,9 +46,9 @@ $(document).ready(() => {
 });
 
 
-/*CARICO LE PRENOTAZIONI*/
 function caricaPrenotazioni() {
 
+    const token = localStorage.getItem("sessionToken");
     $.ajax({
         url: `${apiBaseUrl}/api/booking/my`,
         type: "GET",
@@ -111,10 +112,9 @@ function caricaPrenotazioni() {
 }
 
 
-/*CANCELLA UNA SESSIONE*/
 function cancella(id) {
 
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("sessionToken");
 
     $.ajax({
         url: `${apiBaseUrl}/api/booking/${id}/cancel`,
@@ -131,6 +131,7 @@ function cancella(id) {
 }
 
 function caricaMessaggi() {
+    const token = localStorage.getItem("sessionToken");
     $.ajax({
         url: `${apiBaseUrl}/api/messages/my`,
         type: "GET",
@@ -163,7 +164,6 @@ function caricaMessaggi() {
 }
 
 
-/*FORMATTA DATA*/
 function formatDate(d) {
     return d.toLocaleString("it-IT", {
         day: "2-digit",
@@ -173,7 +173,6 @@ function formatDate(d) {
     });
 }
 
-// -------------------- COOKIE BANNER --------------------
     document.addEventListener('DOMContentLoaded', () => {
         const banner = document.getElementById('cookie-banner');
         if (!localStorage.getItem('cookieConsent')) {
