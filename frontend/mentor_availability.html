@@ -28,12 +28,12 @@
             integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 
 <script>
-const apiBaseUrl = "";
+const apiBaseUrl = "http://localhost:3000"; 
 let mentorId = null;
 
 $(document).ready(() => {
 
-    // 1) Ricavo ID mentor dal token se disponibile
+   
     const user = JSON.parse(sessionStorage.getItem("user") || "{}");
     
     if (user.role !== "mentor") {
@@ -44,17 +44,16 @@ $(document).ready(() => {
 
     mentorId = user.id;
 
-    // Carico disponibilità
     caricaSlot();
 
-    // Aggiungi slot
+
     $("#add-slot-btn").click(function () {
         aggiungiSlot();
     });
 });
 
 
-/*CARICA SLOT*/
+
 function caricaSlot() {
     $.ajax({
         url: `${apiBaseUrl}/api/mentors/${mentorId}/availability`,
@@ -94,7 +93,7 @@ function caricaSlot() {
 }
 
 
-/*AGGIUNGI SLOT*/
+
 function aggiungiSlot() {
 
     const start = $("#slot-start").val();
@@ -133,7 +132,7 @@ function aggiungiSlot() {
 }
 
 
-/*ELIMINA SLOT*/
+
 function eliminaSlot(slotId) {
 
     const token = sessionStorage.getItem("token");
@@ -153,9 +152,7 @@ function eliminaSlot(slotId) {
 }
 
 
-/* 
-   FORMATTA DATA
-*/
+
 function formatDate(iso) {
     const d = new Date(iso);
     return d.toLocaleString("it-IT", {
@@ -166,7 +163,7 @@ function formatDate(iso) {
     });
 }
 
- // -------------------- COOKIE BANNER --------------------
+ 
  document.addEventListener('DOMContentLoaded', () => {
         const banner = document.getElementById('cookie-banner');
         if (!localStorage.getItem('cookieConsent')) {
