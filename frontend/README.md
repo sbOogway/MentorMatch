@@ -65,12 +65,16 @@ frontend/
 │
 ├── package.json                    # Configurazione npm frontend
 └── README.md                       # Documentazione del progetto
+```
+---
 
 ## Funzionalità Principali
 
-### 🔐 Sistema di Autenticazione
+## 🔐 Sistema di Autenticazione
 
-#### Pagina unica per login e registrazione
+---
+
+### Pagina unica per login e registrazione
 - Validazione campi (email, password)
 - UI responsiva e semplice
 - Gestione redirect dopo login (alla pagina account)
@@ -112,13 +116,10 @@ frontend/
 ## Dettagli Tecnici
 
 ### Caricamento dinamico componenti
-
-```js
-$("#header-placeholder").load("common/header.html", function () {
-    // Attiva link della pagina corrente
-});
-$("#footer-placeholder").load("common/footer.html");
-
+```javascript
+// Caricamento automatico header/footer
+headerfooterloader.js // jQuery-based component loading
+```
 ---
 
 ### Gestione Stato Frontend
