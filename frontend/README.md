@@ -5,7 +5,6 @@
 ---
 
 # Indice
-
  -[Stack Tecnologico](#stack-tecnologico)
  -[Architettura Frontend](#architettura)
  -[Funzionalità Principali](#funzionalità-principali)
@@ -44,23 +43,23 @@ frontend/
 │   └── headerfooterloader.js       # Caricamento dinamico Header/Footer via jQuery
 │
 ├── legal/                          # Pagine legali (GDPR, ToS)
-│   └── privacy.html    
-|   └── tos.html                    # Placeholder per privacy/tos se necessario
+│   ├── privacy.html
+│   └── tos.html                    # Placeholder per privacy/tos se necessario
 │
-├── dashboard_router.html           # Router di instradamento verso dashboard corrette
+├── dashboard_router.html           # Router verso la dashboard corretta
 │
-├── mentee_dashboard.html           # Dashboard Mentee: richieste, sessioni, profilo
-├── mentor_dashboard.html           # Dashboard Mentor: profilo, disponibilità, richieste
+├── mentee_dashboard.html           # Dashboard Mentee
+├── mentor_dashboard.html           # Dashboard Mentor
 ├── mentor_availability.html        # Gestione disponibilità Mentor
 │
-├── mentor.html                     # Pagina ricerca Mentor + filtri competenze/esperienza
+├── mentor.html                     # Ricerca Mentor + filtri competenze
 │
-├── index.html                      # Homepage con presentazione del servizio
+├── index.html                      # Homepage
 │
-├── robots.txt                      # Istruzioni SEO per motori di ricerca
+├── robots.txt                      # Istruzioni SEO
 ├── status.html                     # Stato API e diagnostica
 │
-├── package.json                    # Configurazione npm per gestione dipendenze frontend
+├── package.json                    # Configurazione npm frontend
 └── README.md                       # Documentazione del progetto
 
 ## Funzionalità Principali
@@ -84,7 +83,7 @@ L’integrazione con il backend avverrà tramite endpoint REST forniti dal team 
 - Layout a card responsive
 - Script JavaScript pronto per effettuare request alle API del backend
 
-## Area Utente (account.html)##;
+## Area Utente (account.html);
 Visualizzazione e modifica informazioni personali
 Gestione password
 Logout sicuro
