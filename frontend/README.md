@@ -4,27 +4,31 @@
 
 ---
 
-# Indice
- -[Stack Tecnologico](#stack-tecnologico)
- -[Architettura Frontend](#architettura)
- -[Funzionalità Principali](#funzionalità-principali)
- -[Dettagli Tecnici](#dettagli-tecnici)
- -[Testing](#testing)
- -[Licenza](#licenza)
+## Indice
+- [Stack Tecnologico](#stack-tecnologico)
+- [Architettura Frontend](#architettura-frontend)
+- [Funzionalità Principali](#funzionalità-principali)
+- [Dettagli Tecnici](#dettagli-tecnici)
+- [Testing](#testing)
+- [Licenza](#-licenza)
 
 ---
 
 ## Stack Tecnologico
-|Tecnologia    |	     Versione	           | Scopo |
-|--------------|-------------------------------|-------|
-|**HTML5**     |Struttura semantica del sito   |
-|**CSS3**	   |Styling personalizzato         |
-|**Bootstrap** |5.3.5                          |Framework UI e grid system|  
-|**JavaScript**| ES6+                          |Logica client-side
-|**jQuery**	   |Caricamento dinamico componenti (header/footer)
+
+| Tecnologia     | Versione | Scopo |
+|---------------|----------|-------|
+| **HTML5**     | –        | Struttura semantica del sito |
+| **CSS3**      | –        | Styling personalizzato |
+| **Bootstrap** | 5.3.5    | Framework UI e grid system |
+| **JavaScript**| ES6+     | Logica client-side |
+| **jQuery**    | –        | Caricamento dinamico componenti (header/footer) |
+
+---
 
 ## Architettura Frontend
 
+```text
 frontend/
 ├── auth/                           # Sistema di autenticazione
 │   └── autenticazione.html         # Pagina unificata Login/Registrazione
@@ -64,59 +68,74 @@ frontend/
 
 ## Funzionalità Principali
 
-## 🔐 Sistema di Autenticazione
+### 🔐 Sistema di Autenticazione
 
-## Pagina unica per login e registrazione
+#### Pagina unica per login e registrazione
+- Validazione campi (email, password)
+- UI responsiva e semplice
+- Gestione redirect dopo login (alla pagina account)
+- L’integrazione con il backend avverrà tramite endpoint REST forniti dal team backend
 
-Validazione campi (email, password)
-UI responsiva e semplice
-Gestione redirect dopo login (alla pagina account)
-L’integrazione con il backend avverrà tramite endpoint REST forniti dal team backend.
+---
 
-## Ricerca Mentor (Pagina mentor.html)
+### 🔍 Ricerca Mentor (`mentor.html`)
 
 - **Filtri dinamici**:
-
-- Categoria / Skill
-- Area di competenza (es: Software Development, Data Analytics…)
-- Livello esperienza (Junior, Intermedio, Senior)
+  - Categoria / Skill
+  - Area di competenza (es: Software Development, Data Analytics…)
+  - Livello esperienza (Junior, Intermedio, Senior)
 - Layout a card responsive
 - Script JavaScript pronto per effettuare request alle API del backend
 
-## Area Utente (account.html);
-Visualizzazione e modifica informazioni personali
-Gestione password
-Logout sicuro
-Token utente gestito via localStorage (quando il backend sarà pronto)
+---
+### 👤 Area Utente (Dashboard)
 
-## Componenti Comuni 
+- Visualizzazione e modifica informazioni personali
+- Gestione password
+- Logout sicuro
+- Token utente gestito via localStorage
+- Dashboard differenziate per Mentor e Mentee
+
+---
+
+### 🧩 Componenti Comuni
 
 - **Header dinamico con**:
-icona Account
-icona API Status
-navigazione
+  - Icona Account
+  - Icona API Status
+  - Navigazione
 - **Footer standard comune a tutte le pagine**
-Caricamento automatico con jQuery → headerfooterloader.js
+- Caricamento automatico con jQuery → `headerfooterloader.js`
+
+---
 
 ## Dettagli Tecnici
 
-## Caricamento dinamico componenti
+### Caricamento dinamico componenti
+
+```js
 $("#header-placeholder").load("common/header.html", function () {
     // Attiva link della pagina corrente
 });
 $("#footer-placeholder").load("common/footer.html");
 
-## Gestione Stato Frontend
+---
+
+### Gestione Stato Frontend
 
 - LocalStorage per memorizzare sessione utente
 - Placeholder funzioni per login, registrazione, ricerca mentor
 - Codice pronto per integrazione futura con API REST
 
-## Sicurezza lato client
+---
+
+### Sicurezza lato client
 
 - Validazione input HTML5
 - Blocco campi vuoti nel login/registrazione
 - Struttura pronta per inserimento token JWT (a seguito di endpoint backend)
+
+---
 
 ## Testing
 
@@ -127,8 +146,9 @@ $("#footer-placeholder").load("common/footer.html");
 |Login errato |	`autenticazione.html `|	password sbagliata	|Mostra messaggio errore|
 |Ricerca mentor	|`mentor.html`|	Skill + livello	|Mostra lista mentor filtrati|
 |Filtri vuoti | `mentor.html`|	Nessun filtro|	Mostra tutti i mentor disponibili|
-|Apertura pagina account|`	account.html`|	Utente loggato|	Mostra dati profilo
-|Apertura pagina account senza login|	`account.html` |	Nessun token	|Redirect a `autenticazione.html`|
+| Apertura dashboard | `dashboard_router.html` | Utente loggato | Redirect a dashboard Mentor/Mentee |
+| Apertura dashboard senza login | `dashboard_router.html` | Nessun token | Redirect a `autenticazione.html` |
+
 
 ## 📄 Licenza
 
