@@ -6,6 +6,7 @@ const authRoutes = require("./src/routes/auth.routes");
 const userRoutes = require("./src/routes/users.routes");
 const pool = require("./src/config/database");
 const swaggerDocs = require("./src/config/swagger");
+const errorMiddleware = require("./src/middlewares/errorMiddleware");
 
 const app = express();
 
@@ -19,21 +20,18 @@ pool.query("SELECT 1")
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 
+swaggerDocs(app);
+console.log("Swagger ready");
+
 app.get("/", (req, res) => {
   res.json({ message: "MentorMatch Backend attivo!" });
 });
 
-swaggerDocs(app);
 
-console.log("Swagger ready");
+app.use(errorMiddleware);
 
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
   console.log(`Server avviato su http://localhost:${PORT}`);
-});
-
-app.use((err, req, res, next) => {
-  console.error("Unhandled error:", err);
-  res.status(500).json({ error: "Internal server error" });
 });
