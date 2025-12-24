@@ -28,22 +28,18 @@
             integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 
     <script>
-        const urlBaseApi= ""; //<<--URL del backend 
+        const urlBaseApi= ""; 
 
         $(document).ready(function (){
 
             //Token
             const token = localStorage.getItem('sessionToken');
             const userData = JSON.parse(localStorage.getItem('userData'));
-            if(token && userData){
-                if(userData.role === "mentor"){
-                    window.location.href = '../mentor-dashboard.html';
-                }else{
-                   window.location.href = '../mentee-dashboard.html';
-
+            if(token && userData && userData.role){
+                userData.role= userData.role.toLowerCase().trim();
+                localStorage.setItem("userData", JSON.stringify(userData));
               }
-              return;
-            }
+            
 
             //Handle tab=login/ tab=register in URL
             const urlParams = new URLSearchParams(window.location.search);
@@ -87,7 +83,7 @@
                 $(`#${containerId} .alert`).remove();
             }
 
-        // -------------------- ROLE SWITCH (MENTOR FIELDS) --------------------
+        // ROLE SWITCH (MENTOR FIELDS)
         function toggleMentorFields() {
             const role = $('input[name="user-role"]:checked').val();
             if (role === "mentor") {
@@ -100,11 +96,11 @@
         $('input[name="user-role"]').change(toggleMentorFields);
         toggleMentorFields();
 
-        // -------------------- LOGIN --------------------
+        //LOGIN
         $("#loginForm").submit(function (e) {
             e.preventDefault();
             clearAlert("login-feedback");
-            // --- BUTTON LOADING STATE ---
+            // BUTTON LOADING STATE
             const submitButton = $(this).find('button[type="submit"]');
             const originalText = submitButton.html();
             submitButton.prop("disabled", true).html(
@@ -126,14 +122,17 @@
                 contentType: "application/json",
                 data: JSON.stringify({ email, password }),
                 success: function (res) {
+                    const user = res.user;
+                    user.role= user.role.toLowerCase().trim();
+
                     localStorage.setItem("sessionToken", res.token);
-                    localStorage.setItem("userData", JSON.stringify(res.user));
+                    localStorage.setItem("userData", JSON.stringify(user));
 
                     // Redirect in base al ruolo
-                    if (res.user.role === "mentor") {
-                        window.location.href = "../mentor-dashboard.html";
+                    if (user.role === "mentor") {
+                        window.location.href = "../mentor_dashboard.html";
                     } else {
-                        window.location.href = "../mentee-dashboard.html";
+                        window.location.href = "../mentee_dashboard.html";
                     }
                 },
                 error: function (xhr, status, error) {
@@ -149,18 +148,21 @@
             });
         });
 
-        // -------------------- REGISTER --------------------
+        //  REGISTER
         $("#registerForm").submit(function (e) {
             e.preventDefault();
             clearAlert("register-feedback");
 
-            // ---- BUTTON LOADING STATE ----
+          
             const submitButton = $(this).find('button[type="submit"]');
             const originalText = submitButton.html();
         
             const email = $("#register-email").val().trim();
             const password = $("#register-password").val();
             const confirmPassword = $("#confirm-password").val();
+            const firstName = $("#first-name").val().trim();
+            const lastName = $("#last-name").val().trim();
+
             const role = $('input[name="user-role"]:checked').val();
             const termsAccepted = $('#terms').is(':checked');
 
@@ -170,6 +172,11 @@
                 return;
             }
 
+            if(!firstName || !lastName){
+                showAlert("Inserisci nome e cognome. ", "warning", "register-feedback");
+                submitButton.prop("disabled", false).html(originalText);
+                return;
+            }
             if (!termsAccepted) {
                 showAlert("Accetta i Termini e Condizioni per continuare.", "warning", "register-feedback");
                 submitButton.prop("disabled", false).html(originalText);
@@ -179,10 +186,11 @@
             submitButton.prop("disabled", true).html(
                 '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Registrazione...'
             );
-            // BACKEND ACCETTA SOLO QUESTI 3 CAMPI:
+           
             const payload = {
                 email: email,
                 password: password,
+                full_name: `${firstName} ${lastName}`,
                 role: role
             };
 
@@ -207,13 +215,11 @@
                     }, 3000);
                 },
                 error: function (xhr, status, error) {
-                    console.error("Registration error:", xhr.responseText);
+                    
                         let msgError = "Errore durante la registrazione. Riprova.";
-                        if (xhr.responseJSON && xhr.responseJSON.message) {
-                            msgError = xhr.responseJSON.message;
-                        } else if (xhr.status === 409) {
-                            msgError = "Email già in uso, per favore sceglierne un'altra.";
-                        }
+                        if (xhr.responseJSON ) {
+                            msgError = xhr.responseJSON.message || xhr.responseJSON.error || msg.Error;
+                        } 
                         showAlert(msgError, 'danger', 'register-feedback');
                         submitButton.prop('disabled', false).html(originalText);
                     }
@@ -221,7 +227,7 @@
         });
     });
 
-    // -------------------- COOKIE BANNER --------------------
+    //COOKIE BANNER
     document.addEventListener('DOMContentLoaded', () => {
         const banner = document.getElementById('cookie-banner');
         if (!localStorage.getItem('cookieConsent')) {

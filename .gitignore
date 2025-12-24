@@ -1,2 +1,33 @@
 node_modules
 .env
+# Frontend cache / build 
+dist/
+build/
+.cache/
+
+# Sistemi operativi
+.DS_Store
+Thumbs.db
+
+# Editor e IDE
+.vscode/
+.idea/
+
+# Backup e temporanei
+*.swp
+*.swo
+*.tmp
+*~
+
+# Log lato browser (eventuali)
+*.log
+
+# Environment per frontend
+.env
+.env.local
+.env.development
+.env.production
+
+# File che non devono essere tracciati
+npm-debug.log*
+yarn-error.log*

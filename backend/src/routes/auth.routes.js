@@ -1,9 +1,16 @@
 const express = require("express");
 const router = express.Router();
 const AuthController = require("../controllers/AuthController");
-
+const ProfileController = require("../controllers/ProfileController")
+const authMiddleware = require("../middlewares/authMiddleware")
 router.post("/register", AuthController.register);
 router.post("/login", AuthController.login);
+
+// GET /api/auth/me  
+router.get("/me", authMiddleware, ProfileController.getLoggedInUserProfile);
+
+// PUT /api/auth/me
+router.put("/me", authMiddleware, ProfileController.updateLoggedInUserProfile);
 
 module.exports = router;
 
@@ -18,7 +25,7 @@ module.exports = router;
  * @swagger
  * /api/auth/register:
  *   post:
- *     summary: Register a new user (mentor, mentee or admin)
+ *     summary: Register a new user (mentor or mentee)
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -40,11 +47,11 @@ module.exports = router;
  *                 example: mario@example.com
  *               password:
  *                 type: string
- *                 example: StrongPassword123!
+ *                 example: StrongPass123
  *               role:
  *                 type: string
- *                 enum: [mentor, mentee, admin]
- *                 example: mentee
+ *                 enum: [mentor, mentee]
+ *                 example: mentor
  *     responses:
  *       201:
  *         description: User registered successfully
@@ -53,26 +60,26 @@ module.exports = router;
  *             example:
  *               message: "User registered successfully"
  *               user:
- *                 id: 12
+ *                 id: 1
  *                 full_name: "Mario Rossi"
  *                 email: "mario@example.com"
- *                 role: "mentee"
+ *                 role: "mentor"
  *                 created_at: "2025-01-01T12:00:00Z"
  *               token: "jwt.token.here"
  *
  *       400:
- *         description: Missing required fields
+ *         description: Invalid input (bad email, weak password, missing fields)
  *         content:
  *           application/json:
  *             example:
- *               error: "Missing required fields"
+ *               error: "Invalid email format"
  *
  *       403:
- *         description: Invalid role provided
+ *         description: Invalid role (only mentor or mentee allowed)
  *         content:
  *           application/json:
  *             example:
- *               error: "Invalid role — allowed roles: mentor, mentee, admin"
+ *               error: "Only 'mentor' or 'mentee' role are allowed during registration"
  *
  *       409:
  *         description: Email already exists
@@ -81,6 +88,138 @@ module.exports = router;
  *             example:
  *               error: "Email already exists"
  *
+ *       500:
+ *         description: Internal server error
+ */
+
+/**
+ * @swagger
+ * /api/auth/login:
+ *   post:
+ *     summary: Login a user (mentor, mentee or admin)
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: mario@example.com
+ *               password:
+ *                 type: string
+ *                 example: StrongPass123
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "Login successful"
+ *               user:
+ *                 id: 1
+ *                 full_name: "Mario Rossi"
+ *                 email: "mario@example.com"
+ *                 role: "admin"
+ *                 created_at: "2025-01-01T12:00:00Z"
+ *               token: "jwt.token.here"
+ *
+ *       400:
+ *         description: Missing email or password
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: "Email and password required"
+ *
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: "User not found"
+ *
+ *       401:
+ *         description: Invalid password
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: "Invalid password"
+ *
+ *       500:
+ *         description: Internal server error
+ */
+
+/**
+ * @swagger
+ * /api/auth/me:
+ *   get:
+ *     summary: Get logged-in user's profile
+ *     tags: [Auth]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Profile retrieved successfully
+ *         content:
+ *           application/json:
+ *             example:
+ *               id: "550e8400-e29b-41d4-a716-446655440000"
+ *               full_name: "Sara Verdi"
+ *               email: "sara@example.com"
+ *               role: "mentor"
+ *               created_at: "2025-12-03T14:00:00Z"
+ *       401:
+ *         description: Unauthorized (missing or invalid token)
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal server error
+ */
+
+/**
+ * @swagger
+ * /api/auth/me:
+ *   put:
+ *     summary: Update logged-in user's profile
+ *     tags: [Auth]
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               full_name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Profile updated successfully
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "Profilo aggiornato con successo."
+ *               data:
+ *                 id: "550e8400-e29b-41d4-a716-446655440000"
+ *                 full_name: "Updated Name"
+ *                 email: "updated@example.com"
+ *                 role: "mentor"
+ *       400:
+ *         description: Invalid data
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: User not found
  *       500:
  *         description: Internal server error
  */

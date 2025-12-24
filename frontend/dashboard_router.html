@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description"
+          content="MentorMatch - Esame pratico di Tecnologie Innovative per lo Sviluppo Web di I.G. e K.S.">
+
+    <link rel="preconnect" href="https://images.unsplash.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://images.unsplash.com">
+
+    <title>Ridirect...</title>
+    
+    <!-- CSS -->
+    <link type="text/css" rel="stylesheet" href="css/style.css">
+
+    <!-- JS -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+<body>
+<script>
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    const token = localStorage.getItem("sessionToken");
+
+    // Utente NON loggato
+    if (!token || !userData) {
+        window.location.href = "auth/autenticazione.html";
+        return;
+    }
+
+    // Utente loggato → manda alla dashboard corretta
+    if (userData.role === "mentor") {
+        window.location.href = "mentor_dashboard.html";
+    } else {
+        window.location.href = "mentee_dashboard.html";
+    }
+</script>
+</body>
+</html>

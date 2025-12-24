@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile.dev
     container_name: MentorMatch-backend
     ports:
-      - "3000:3000"
+      - "3000:3000"   # dev only
     environment:
       PORT: 3000
       DB_HOST: db
@@ -15,6 +15,8 @@ services:
       DB_USER: postgres
       DB_PASSWORD: postgres
       DB_NAME: mentormatch
+    env_file:
+      - ./backend/.env
     volumes:
       - ./backend:/app
       - /app/node_modules
@@ -22,6 +24,17 @@ services:
     depends_on:
       db:
         condition: service_healthy
+
+  frontend:
+    image: nginx:alpine
+    container_name: MentorMatch-frontend
+    ports:
+      - "8080:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend
 
   db:
     image: postgres:15-alpine
@@ -32,11 +45,11 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: mentormatch
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d mentormatch"]
       interval: 3s
-      timeout: 3s
-      retries: 10
-      start_period: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 10s
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./database/schema.sql:/docker-entrypoint-initdb.d/1_schema.sql:ro
