@@ -41,16 +41,13 @@
               }
             
 
-            //Handle tab=login/ tab=register in URL
             const urlParams = new URLSearchParams(window.location.search);
             const tabParam = urlParams.get('tab');
             
             if(tabParam){
                 if(tabParam === 'login'){
-                    //Activate the login tab
                     $('#login-tab').tab('show');
                 }else if( tabParam === 'register'){
-                    //Activate the registration tab
                     $('#register-tab').tab('show');
                 }
 
@@ -83,7 +80,6 @@
                 $(`#${containerId} .alert`).remove();
             }
 
-        // ROLE SWITCH (MENTOR FIELDS)
         function toggleMentorFields() {
             const role = $('input[name="user-role"]:checked').val();
             if (role === "mentor") {
@@ -100,7 +96,7 @@
         $("#loginForm").submit(function (e) {
             e.preventDefault();
             clearAlert("login-feedback");
-            // BUTTON LOADING STATE
+            
             const submitButton = $(this).find('button[type="submit"]');
             const originalText = submitButton.html();
             submitButton.prop("disabled", true).html(
@@ -193,6 +189,22 @@
                 full_name: `${firstName} ${lastName}`,
                 role: role
             };
+
+            if(role === "mentor"){
+                const skillsRaw = $("#mentor-skill").val().trim();
+
+                if(!skillsRaw){
+                    showAlert("Inserisci almeno un'area di competenza.", "warning", "register-feedback");
+                    submitButton.prop("disabled", false).html(originalText);
+                    return;
+                }
+            
+
+            payload.area_competenza = skillsRaw
+            .split(",")
+            .map(s => s.trim())
+            .filter(s => s.length > 0);
+        }
 
             $.ajax({
                 url: `${urlBaseApi}/api/auth/register`,
@@ -393,16 +405,6 @@
                         <input type="text" class="form-control" id="mentor-skill" placeholder="Es. Programmazione, AI"> 
                     </div>
 
-                    <div class="col-md-6">
-                        <label for="mentor-experience" class="form-label">Anni di esperienza</label>
-                        <input type="number" min="0" class="form-control" id="mentor-experience">
-                    </div>
-
-                    <div class="col-md-6">
-                        <label for="mentor-description" class="form-label">Descrizione</label>
-                        <textarea class="form-control" id="mentor-description" rows="3"></textarea>
-                        <div class="form-text">Scrivi una breve presentazione che sarà visibile ai mentee.</div>
-                    </div>
                 </div>
 
             </div>
