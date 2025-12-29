@@ -137,10 +137,10 @@ const apiBaseUrl = "";
 
     function prenotaSlot(slotId) {
 
-        const token = sessionStorage.getItem("token");
+        const token = sessionStorage.getItem("sessionToken");
         if (!token) {
             alert("Devi effettuare il login prima di prenotare.");
-            window.location.href = "autenticazione.html";
+            window.location.href = "auth/autenticazione.html?tab=login";
             return;
         }
 
