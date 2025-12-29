@@ -34,11 +34,12 @@ let mentorId = null;
 $(document).ready(() => {
 
    
-    const user = JSON.parse(sessionStorage.getItem("user") || "{}");
-    
-    if (user.role !== "mentor") {
-        alert("Accesso riservato ai mentor.");
-        window.location.href = "index.html";
+    const token = localStorage.getItem("sessionToken");
+    const user = JSON.parse(localStorage.getItem("userData") || "null");
+
+    if(!token || !user || user.role?.toLowerCase().trim() !== "mentor"){
+        alert("Acesso riservato ai mentor.");
+        window.location.href= "auth/autenticazione.html?tab=login";
         return;
     }
 
@@ -135,7 +136,7 @@ function aggiungiSlot() {
 
 function eliminaSlot(slotId) {
 
-    const token = sessionStorage.getItem("token");
+    const token = sessionStorage.getItem("sessionToken");
 
     $.ajax({
         url: `${apiBaseUrl}/api/mentors/availability/${slotId}`,
