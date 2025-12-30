@@ -34,7 +34,7 @@ $(document).ready(() => {
    const token = localStorage.getItem("sessionToken");
     const user =JSON.parse(localStorage.getItem("userData"));
 
-    if(!token || !user || user.role?.toLowerCase() !== "mentor"){
+    if(!token || !user || user.role?.toLowerCase().trim() !== "mentor"){
         alert("Accesso riservato ai mentor.");
         window.location.href = "index.html";
         return;
@@ -218,7 +218,7 @@ function formatDate(d) {
         <h1 class="fw-bold">Dashboard Mentor</h1>
         <p class="text-muted">Gestisci le tue sessioni e la tua disponibilità.</p>
 
-        <button class="btn btn-dark mt-3" onclick="window.location.href='mentor_availability.html'">
+        <button class="btn btn-dark mt-3" onclick="window.location.href='/mentor_availability.html'">
             <i class="bi bi-calendar-plus me-1"></i> Gestisci disponibilità
         </button>
     </div>

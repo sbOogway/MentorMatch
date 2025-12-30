@@ -252,15 +252,19 @@
     function renderMentors(list, sortBy) {
         let mentorsToRender = [...list];
 
-        // simple client-side sorting
-        if (sortBy === "experience_desc") {
-            // if backend adds experience field you can sort here
+        if(sortBy=== "rating_desc"){
+            mentorsToRender.sort((a,b)=> (b.rating || 0)- (a.rating || 0));
+        }else if(sortBy === "rating_asc"){
+            mentorsToRender.sort((a,b) => (a.rating || 0) - (b.rating || 0));
+        }
+        else if (sortBy === "experience_desc") {
+            //placeholder
         } else if (sortBy === "experience_asc") {
-            // same as above, placeholder
+            //placeholder
         } else if (sortBy === "recent") {
-            // if backend returns created_at you can sort by date here
+            //placeholder
         } else if (sortBy === "featured") {
-            // default: maybe sort by rating desc
+            //default: rating desc
             mentorsToRender.sort((a, b) => (b.rating || 0) - (a.rating || 0));
         }
 
@@ -371,11 +375,6 @@
         }
     }
 
-    /**
-     * Build API URL for GET /api/mentors
-     * Using query params from the official spec:
-     * sector, lang, available, q, page, limit
-     */
     function buildMentorsApiUrl(page, filters) {
         let url = `${apiBaseUrl}/api/mentors?page=${page}&limit=9`;
 
@@ -399,7 +398,6 @@
         return url;
     }
 
- // -------------------- COOKIE BANNER --------------------
     document.addEventListener('DOMContentLoaded', () => {
         const banner = document.getElementById('cookie-banner');
         if (!localStorage.getItem('cookieConsent')) {
@@ -609,6 +607,8 @@
                             <div class="col-auto my-auto">
                                 <select class="form-select py-1" name="sortBy" id="sortBy">
                                     <option value="featured" selected>In evidenza</option>
+                                    <option value = "rating_desc">Recensioni migliori</option>
+                                    <option value= "rating_asc">Recensioni peggiori</option>
                                     <option value="experience_desc">Esperienza maggiore</option>
                                     <option value="experience_asc">Esperienza minore</option>
                                     <option value="recent">Più recenti</option>

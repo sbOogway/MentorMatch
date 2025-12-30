@@ -30,6 +30,7 @@
 <script>
 const apiBaseUrl = ""; 
 let mentorId = null;
+ let allSlots= [];
 
 $(document).ready(() => {
 
@@ -37,37 +38,97 @@ $(document).ready(() => {
     const token = localStorage.getItem("sessionToken");
     const user = JSON.parse(localStorage.getItem("userData") || "null");
 
+    console.log("ORIGIN:", window.location.origin);
+console.log("TOKEN exists?", !!token, token?.slice(0, 15) + "...");
+console.log("USER raw:", localStorage.getItem("userData"));
+console.log("USER parsed:", user);
+console.log("ROLE:", user?.role, "normalized:", user?.role?.toLowerCase()?.trim());
+/*
     if(!token || !user || user.role?.toLowerCase().trim() !== "mentor"){
         alert("Acesso riservato ai mentor.");
-        window.location.href= "auth/autenticazione.html?tab=login";
+        window.location.href= "/auth/autenticazione.html?tab=login";
         return;
     }
+*/
+    if(!token){
+  alert("Devi fare login.");
+  window.location.href= "/auth/autenticazione.html?tab=login";
+  return;
+}
+
+if(!user){
+  alert("Sessione non valida. Rifai login.");
+  localStorage.removeItem("sessionToken");
+  localStorage.removeItem("userData");
+  window.location.href= "/auth/autenticazione.html?tab=login";
+  return;
+}
+
+const role = (user.role || "").toLowerCase().trim();
+if(role !== "mentor"){
+  alert("Accesso riservato ai mentor.");
+  window.location.href= "/dashboard_router.html";
+  return;
+}
 
     mentorId = user.id;
-
     caricaSlot();
 
 
     $("#add-slot-btn").click(function () {
         aggiungiSlot();
     });
+
+    $("#dayFilter").on("change", function(){
+        const day=$(this).val();
+        if(!day){
+            renderSlots(allSlots);
+            return;
+        }
+
+        const filtered = allSlots.filter( s =>{
+            const start = new Date(s.start_time);
+            const yyyy= start.getFullYear();
+            const mm = String(start.getMonth()+1).padStart(2,"0");
+            const dd= String(start.getDate()).padStart(2, "0");
+            const dateStr = `${yyyy}-${mm}-${dd}`;
+            return dateStr === day;
+        });
+        renderSlots(filtered);
+    });
+    $("#clearDayFilter").on("click", function (){
+        $("#dayFilter").val("");
+        renderSlots(allSlots);
+    });
 });
 
 
 
-function caricaSlot() {
+function caricaSlot(){
     $.ajax({
         url: `${apiBaseUrl}/api/mentors/${mentorId}/availability`,
         type: "GET",
-        success: function(slots) {
+        success: function(slots){
+            allSlots= slots || [];
+            renderSlots(allSlots);
+        },
+        error:function(){
+            $("#slot-list").html("<p class= 'text-danger'> Errore nel caricamento slot.</p>");
+        }
+    })
+}
 
+function renderSlots(slots) {
             const container = $("#slot-list");
             container.empty();
 
-            if (slots.length === 0) {
+            if ( !slots || slots.length === 0) {
                 container.html("<p class='text-muted'>Nessuno slot disponibile.</p>");
                 return;
             }
+
+            //Ordina per data/ora
+            slots.sort((a,b) => new Date(a.start_time)- new Date(b.start_time));
 
             slots.forEach(slot => {
 
@@ -86,11 +147,6 @@ function caricaSlot() {
 
                 container.append(html);
             });
-        },
-        error: function() {
-            $("#slot-list").html("<p class='text-danger'>Errore nel caricamento slot.</p>");
-        }
-    });
 }
 
 
@@ -110,7 +166,8 @@ function aggiungiSlot() {
         return;
     }
 
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("sessionToken");
+
 
     $.ajax({
         url: `${apiBaseUrl}/api/mentors/availability`,
@@ -136,7 +193,8 @@ function aggiungiSlot() {
 
 function eliminaSlot(slotId) {
 
-    const token = sessionStorage.getItem("sessionToken");
+    const token = localStorage.getItem("sessionToken");
+
 
     $.ajax({
         url: `${apiBaseUrl}/api/mentors/availability/${slotId}`,
@@ -167,21 +225,26 @@ function formatDate(iso) {
  
  document.addEventListener('DOMContentLoaded', () => {
         const banner = document.getElementById('cookie-banner');
+        const acceptBtn = document.getElementById('acceptCookies');
+        const rejectBtn = document.getElementById('rejectCookies');
+
+         if (!banner || !acceptBtn || !rejectBtn) return;
+
         if (!localStorage.getItem('cookieConsent')) {
             setTimeout(() => banner.classList.add('show'), 50);
         }
 
-        document.getElementById('acceptCookies').addEventListener('click', () => {
-            localStorage.setItem('cookieConsent', 'true');
-            banner.classList.remove('show');
-            setTimeout(() => banner.style.display = 'none', 400);
-        });
+        acceptBtn.addEventListener('click', () => {
+        localStorage.setItem('cookieConsent', 'true');
+        banner.classList.remove('show');
+        setTimeout(() => banner.style.display = 'none', 400);
+         });
 
-        document.getElementById('rejectCookies').addEventListener('click', () => {
-            localStorage.setItem('cookieConsent', 'false');
-            banner.classList.remove('show');
-            setTimeout(() => banner.style.display = 'none', 400);
-        });
+        rejectBtn.addEventListener('click', () => {
+        localStorage.setItem('cookieConsent', 'false');
+        banner.classList.remove('show');
+        setTimeout(() => banner.style.display = 'none', 400);
+       });
     });
 </script>
 </head>
@@ -197,7 +260,7 @@ function formatDate(iso) {
         <p class="text-muted">Aggiungi, visualizza o rimuovi le tue disponibilità per le sessioni..</p>
     </div>
 
-    <!-- Form: Aggiungi nuovo slot -->
+    <!-- Form: Aggiunge nuovo slot -->
     <div class="card shadow-sm p-4 mb-4">
 
         <h5 class="fw-semibold mb-3">Aggiungi nuovo slot</h5>
@@ -231,7 +294,15 @@ function formatDate(iso) {
         <h4 class="fw-semibold">Slot disponibili</h4>
         <p class="text-muted">Qui puoi modificare o rimuovere le disponibilità già inserite.</p>
     </div>
-
+    <div class= "row g-3 align-items-end mb-3">
+        <div class= "col-md-4">
+            <label for = "dayFilter" class="form-label">Seleziona giorno</label>
+            <input type = "date" id= "dayFilter" class="form-control">
+        </div>
+        <div class= "col-md-3">
+            <button id="clearDayFilter" class="btn btn-outline-dark w-100">Mostra tutti</button>
+        </div>
+    </div>
     <div id="slot-list">
         <p class="text-muted">Caricamento disponibilità...</p>
     </div>

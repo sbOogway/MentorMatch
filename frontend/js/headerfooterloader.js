@@ -28,23 +28,28 @@ $(function () {
 
         // Utente NON loggato → account e sessioni portano alla login
         if (!token || !userData) {
-            accountLink.setAttribute("href", "auth/autenticazione.html");
+            accountLink.setAttribute("href", "/auth/autenticazione.html");
             if (sessionsLink) {
-                sessionsLink.setAttribute("href", "auth/autenticazione.html");
+                sessionsLink.setAttribute("href", "/auth/autenticazione.html");
             }
             return;
         }
 
         // Utente loggato → account porta alla dashboard corretta
         if (userData.role === "mentor") {
-            accountLink.setAttribute("href", "mentor_dashboard.html");
+            accountLink.setAttribute("href", "/mentor_dashboard.html");
         } else {
-            accountLink.setAttribute("href", "mentee_dashboard.html");
+            accountLink.setAttribute("href", "/mentee_dashboard.html");
         }
 
         // Sessioni → sempre al router (decide lui)
         if (sessionsLink) {
-            sessionsLink.setAttribute("href", "dashboard_router.html");
+            if(userData.role === "mentor"){
+                sessionsLink.setAttribute("href", "/mentor_dashbaord.html");
+            }else{
+                sessionsLink.setAttribute("href", "/mentee_dashboard.html");
+            }
+
         }
     });
 
