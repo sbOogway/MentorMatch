@@ -48,8 +48,7 @@ class MentorService {
   }
 
   async getMentorById(id) {
-    const mentor =
-      await this.mentorRepository.findMentorById(id)
+    const mentor = await this.mentorRepository.findMentorById(id)
 
     if (!mentor) {
       const err = new Error("Mentor not found")

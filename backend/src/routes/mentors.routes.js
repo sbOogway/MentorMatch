@@ -103,7 +103,6 @@ module.exports = router;
  *         description: Invalid parameters
  */
 
-
 /**
  * @swagger
  * /api/mentors/{id}:
@@ -123,7 +122,6 @@ module.exports = router;
  *       404:
  *         description: Mentor not found
  */
-
 
 /**
  * @swagger
@@ -153,7 +151,6 @@ module.exports = router;
  *         description: Availability slots
  */
 
-
 /**
  * @swagger
  * /api/mentors/profile:
@@ -161,7 +158,7 @@ module.exports = router;
  *     summary: Update mentor profile
  *     tags: [Mentors]
  *     security:
- *       - bearerAuth: []
+ *       - BearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -188,7 +185,6 @@ module.exports = router;
  *         description: Forbidden
  */
 
-
 /**
  * @swagger
  * /api/mentors/availability:
@@ -196,7 +192,7 @@ module.exports = router;
  *     summary: Create mentor availability slots
  *     tags: [Mentors]
  *     security:
- *       - bearerAuth: []
+ *       - BearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -223,5 +219,4 @@ module.exports = router;
  *       409:
  *         description: Slot overlap
  */
-
 

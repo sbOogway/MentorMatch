@@ -5,11 +5,41 @@ class MentorRepository {
     this.db = db
   }
 
-  async findMentorById(mentorId) {
-    const query = `SELECT * FROM mentor_profiles WHERE id = $1`
-    const result = await pool.query(query, [mentorId])
-    return result.rows[0] || null
+    async findMentorById(mentorId) {
+    const query = `
+      SELECT
+        mp.id,
+        mp.user_id,
+        u.full_name,
+        mp.bio,
+        mp.sectors,
+        mp.languages,
+        mp.rating_avg AS rating,
+        mp.meeting_link_template
+      FROM mentor_profiles mp
+      JOIN users u ON u.id = mp.user_id
+      WHERE mp.id = $1
+    `;
+
+    const { rows } = await pool.query(query, [mentorId]);
+    if (!rows.length) return null;
+
+    const r = rows[0];
+
+    return {
+      id: r.id,
+      user_id: r.user_id,
+      full_name: r.full_name,
+      bio: r.bio,
+      sectors: r.sectors,
+      languages: r.languages,
+      rating: Number(r.rating),
+      profile: {
+        meeting_link_template: r.meeting_link_template
+      }
+    };
   }
+ 
 
   async findMentors(filters, pagination) {
     const { sector, lang, available, q } = filters
@@ -50,7 +80,7 @@ class MentorRepository {
     }
   
     const itemsQuery = `
-      SELECT mp.*, u.full_name
+      SELECT mp.id, u.full_name, mp.bio, mp.sectors, mp.languages, mp.rating_avg AS rating
       ${baseQuery}
       ORDER BY mp.updated_at DESC
       LIMIT $${values.length + 1}
@@ -73,6 +103,7 @@ class MentorRepository {
       items: itemsResult.rows,
       total: Number(countResult.rows[0].total)
     }
+
   }
   
   async findMentorAvailability(mentorId, range) {
