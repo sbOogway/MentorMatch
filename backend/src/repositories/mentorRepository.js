@@ -1,162 +1,155 @@
-const pool = require("../config/database");
+const pool = require("../config/database")
 
 class MentorRepository {
-    constructor(db) {
-      this.db = db
+  constructor(db) {
+    this.db = db
+  }
+
+  async findMentorById(mentorId) {
+    const query = `SELECT * FROM mentor_profiles WHERE id = $1`
+    const result = await pool.query(query, [mentorId])
+    return result.rows[0] || null
+  }
+
+  async findMentors(filters, pagination) {
+    const { sector, lang, available, q } = filters
+    const { limit, offset } = pagination
+  
+    let baseQuery = `
+      FROM mentor_profiles mp
+      JOIN users u ON mp.user_id = u.id
+      WHERE TRUE
+    `
+  
+    const values = []
+  
+    if (sector?.length) {
+      values.push(sector)
+      baseQuery += ` AND mp.sectors && $${values.length}`
     }
   
-    async findMentorById(mentorId) {
-      // query mentor table by primary key
-      // return mentor object if found
-      // return null if not found
-
-      const query = "SELECT * FROM mentor_profiles WHERE user_id = $1";
-      const values = [mentorId];
-
-      const result = await pool.query(query, values);
-
-      return result.rows[0] || null;
+    if (lang?.length) {
+      values.push(lang)
+      baseQuery += ` AND mp.languages && $${values.length}`
     }
   
-    async findMentors(filters, pagination) {
-      // filters:
-      // - sector: array of strings
-      // - lang: array of language codes
-      // - available: boolean
-      // - q: search string
-     
-      // pagination:
-      // - limit
-      // - offset
-  
-      // build base query for mentors
-      // conditionally apply filters
-      // apply limit and offset
-      // execute query to get items
-      // execute separate count query for total
-  
-      // return { items, total }
-      const {sector, lang, available, q} = filters
-      const {limit, offset} = pagination
-
-      const query = `SELECT * FROM mentor_profiles 
-                    JOIN users ON mentor_profiles.user_id = users.id 
-                    WHERE `
-      const values = []
-
-        // sector filter
-    // sector filter
-      if (sector && Array.isArray(sector) && sector.length > 0) {
-            values.push(sector);
-            query += ` AND sectors && $${values.length}`;
-        }
-      if(lang && Array.isArray(lang) && lang.length > 0){
-            values.push(lang);
-            query += ` AND lang && $${values.length}`;
-      }
-      if (available === true) {
-       
-        query += `
-          AND EXISTS (
-            SELECT 1
-            FROM mentor_availability ma
-            WHERE ma.mentor_id = mentor_profiles.user_id
-            AND ma.start_time >= NOW()
-          )
-        `
-      }
-      if(q){
-        values.push(`q`)
-        query += `
-            AND full_name ILIKE $${values.length}
-        `
-      }
-
-        values.push(limit);
-        values.push(offset);
-        
-        query += `
-            ORDER BY updated_at DESC
-            LIMIT $${values.length - 1}
-            OFFSET $${values.length}
-        `;
-        
-        const result = await pool.query(query, values);
-        return result.rows;
-
-        }
-  
-        async findMentorAvailability(mentorId, range) {
-            const { fromDate, toDate } = range
-          
-            const query = `
-              SELECT id, mentor_id, start_time, end_time, is_booked
-              FROM availability_slots
-              WHERE mentor_id = $1
-              AND start_time < $3
-              AND end_time > $2
-              AND is_booked = FALSE
-              ORDER BY start_time ASC
-            `
-          
-            const values = [mentorId, fromDate, toDate]
-          
-            const result = await pool.query(query, values)
-          
-            return result.rows
-          }
-          
-  
-    async putMentorProfile(mentorId, fields) {
-      // update mentor profile fields
-      // only update fields present in safeUpdate
-      // do not touch protected columns
-      // return updated mentor profile
-
-      const allowed = ["bio", "sectors", "languages", "meeting_link_template"];
-
-        const updates = [];
-        const values = [];
-        let index = 1;
-
-        for (const key of allowed) {
-            if (fields[key] !== undefined) {
-                updates.push(`${key} = $${index}`);
-                values.push(fields[key]);
-                index++;
-            }
-        }
-
-        if (updates.length === 0) {
-            return undefined; 
-        }
-
-        // add ID as last placeholder
-        values.push(mentorId);
-
-        const query = `
-            UPDATE mentor_profiles
-            SET ${updates.join(", ")} , updated_at = NOW()
-            WHERE user_id = $${values.length}
-            RETURNING *
-        `;
-
-
-        const result = await pool.query(query, values)
-
-        return result.rows[0] || null
+    if (available === true) {
+      baseQuery += `
+        AND EXISTS (
+          SELECT 1
+          FROM availability_slots a
+          WHERE a.mentor_id = mp.id
+          AND a.start_time >= NOW()
+        )
+      `
     }
   
-    async insertMentorAvailability(mentorId, slots) {
-      // slots: array of { start_time, end_time }
+    if (q) {
+      values.push(`%${q}%`)
+      baseQuery += ` AND u.full_name ILIKE $${values.length}`
+    }
   
-      // insert availability slots for mentor
-      // use batch insert if possible
-      // return inserted slots
-
-      const query = `INSERT INTO`
+    const itemsQuery = `
+      SELECT mp.*, u.full_name
+      ${baseQuery}
+      ORDER BY mp.updated_at DESC
+      LIMIT $${values.length + 1}
+      OFFSET $${values.length + 2}
+    `
+  
+    const countQuery = `
+      SELECT COUNT(*) AS total
+      ${baseQuery}
+    `
+  
+    const itemsResult = await pool.query(
+      itemsQuery,
+      [...values, limit, offset]
+    )
+  
+    const countResult = await pool.query(countQuery, values)
+  
+    return {
+      items: itemsResult.rows,
+      total: Number(countResult.rows[0].total)
     }
   }
   
-  module.exports = MentorRepository
-  
+  async findMentorAvailability(mentorId, range) {
+    const { fromDate, toDate } = range
+
+    const query = `
+      SELECT id, mentor_id, start_time, end_time, is_booked
+      FROM availability_slots
+      WHERE mentor_id = $1
+      AND start_time < $3
+      AND end_time > $2
+      AND is_booked = FALSE
+      ORDER BY start_time ASC
+    `
+
+    const values = [mentorId, fromDate, toDate]
+
+    const result = await pool.query(query, values)
+
+    return result.rows
+  }
+
+  async updateMentorProfile(mentorId, fields) {
+    const allowed = ["bio", "sectors", "languages", "meeting_link_template"]
+
+    const updates = []
+    const values = []
+    let index = 1
+
+    for (const key of allowed) {
+      if (fields[key] !== undefined) {
+        updates.push(`${key} = $${index}`)
+        values.push(fields[key])
+        index++
+      }
+    }
+
+    if (updates.length === 0) {
+      return undefined
+    }
+
+    values.push(mentorId)
+
+    const query = `
+      UPDATE mentor_profiles
+      SET ${updates.join(", ")}, updated_at = NOW()
+      WHERE id = $${values.length}
+      RETURNING *
+    `
+
+    const result = await pool.query(query, values)
+
+    return result.rows[0] || null
+  }
+
+  async createMentorAvailability(mentorId, slots) {
+    const values = []
+    const placeholders = []
+
+    let index = 1
+
+    for (const slot of slots) {
+      placeholders.push(`($${index}, $${index + 1}, $${index + 2})`)
+      values.push(mentorId, slot.start_time, slot.end_time)
+      index += 3
+    }
+
+    const query = `
+      INSERT INTO availability_slots (mentor_id, start_time, end_time)
+      VALUES ${placeholders.join(", ")}
+      RETURNING id, mentor_id, start_time, end_time, is_booked
+    `
+
+    const result = await pool.query(query, values)
+
+    return result.rows
+  }
+}
+
+module.exports = MentorRepository

@@ -1,79 +1,96 @@
-class mentorController {
-    constructor(mentorService) {
-        this.mentorService = mentorService;
+class MentorController {
+  constructor(mentorService) {
+    this.mentorService = mentorService
 
-        this.listMentors = this.listMentors.bind(this);
-        this.getMentorAvailability = this.getMentorAvailability.bind(this);
-        this.getMentorById = this.getMentorById.bind(this);
-        this.updateMentorProfile = this.updateMentorProfile.bind(this);
-        this.updateMentorAvailability = this.updateMentorAvailability.bind(this);
-    }
+    this.listMentors = this.listMentors.bind(this)
+    this.getMentorById = this.getMentorById.bind(this)
+    this.getMentorAvailability = this.getMentorAvailability.bind(this)
+    this.updateMentorProfile = this.updateMentorProfile.bind(this)
+    this.updateMentorAvailability = this.updateMentorAvailability.bind(this)
+  }
 
-    async listMentors(req, res, next){
-        try {
-            const result = await this.mentorService.listMentors(req.query)
-            res.status(201).json(result)
-        } catch (error) {
-            next(error)
-            
-        }
-    }
-    async getMentorAvailability(req, res, next){
-        try {
-            const { id } = req.params
-            const {from, to} = req.query
-
-            const slots = await this.mentorService.getMentorAvailability(
-                id,
-                {from , to}
-            )
-            res.status(201).json(slots)
-        } catch (error) {
-            next(error)
-        }
-    }
-    async getMentorById(req, res, next){
-        try {
-            const {id} = req.params
-            const mentor = await this.mentorService.getMentorById(id)
-            res.status(201).json(mentor)
-        } catch (error) {
-            next(error)
-        }
-    }
-    async updateMentorProfile(req, res, next) {
-        try {
-          const mentorId = req.user.id; 
-          const profileData = req.body;
-    
-          const updatedProfile =
-            await this.mentorService.updateMentorProfile(
-              mentorId,
-              profileData
-            );
-    
-          res.status(200).json(updatedProfile);
-        } catch (err) {
-          next(err);
-        }
+  async listMentors(req, res, next) {
+    try {
+      const filters = {
+        sector: req.query.sector
+          ? [].concat(req.query.sector)
+          : undefined,
+        lang: req.query.lang
+          ? [].concat(req.query.lang)
+          : undefined,
+        available:
+          req.query.available === undefined
+            ? undefined
+            : req.query.available === "true",
+        q: req.query.q
       }
-    
-      async updateMentorAvailability(req, res, next) {
-        try {
-          const mentorId = req.user.id;
-          const { slots } = req.body;
-    
-          const created =
-            await this.mentorService.createMentorAvailability(
-              mentorId,
-              slots
-            );
-    
-          res.status(201).json({ created });
-        } catch (err) {
-          next(err);
-        }
+
+      const pagination = {
+        page: Number(req.query.page),
+        limit: Number(req.query.limit)
       }
+
+      const result =
+        await this.mentorService.listMentors(filters, pagination)
+
+      res.json(result)
+    } catch (err) {
+      next(err)
+    }
+  }
+
+  async getMentorById(req, res, next) {
+    try {
+      
+      const mentor =
+        await this.mentorService.getMentorById(req.params.id)
+      res.json(mentor)
+    } catch (err) {
+      next(err)
+    }
+  }
+
+  async getMentorAvailability(req, res, next) {
+    try {
+      const slots =
+        await this.mentorService.getMentorAvailability(
+          req.params.id,
+          { from: req.query.from, to: req.query.to }
+        )
+
+      res.json(slots)
+    } catch (err) {
+      next(err)
+    }
+  }
+
+  async updateMentorProfile(req, res, next) {
+    try {
+      const updated =
+        await this.mentorService.updateMentorProfile(
+          req.user.id,
+          req.body
+        )
+
+      res.json(updated)
+    } catch (err) {
+      next(err)
+    }
+  }
+
+  async updateMentorAvailability(req, res, next) {
+    try {
+      const created =
+        await this.mentorService.createMentorAvailability(
+          req.user.id,
+          req.body.slots
+        )
+
+      res.status(201).json({ created })
+    } catch (err) {
+      next(err)
+    }
+  }
 }
-    
-module.exports = MentorController;
+
+module.exports = MentorController

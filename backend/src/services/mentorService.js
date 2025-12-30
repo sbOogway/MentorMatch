@@ -3,290 +3,122 @@ class MentorService {
     this.mentorRepository = mentorRepository
   }
 
-  async listMentors(filters, pagination) {
-    const { sector, lang, available, q } = filters
-    const { page, limit } = pagination
+  async listMentors(filters, pagination = {}) {
+    const { sector, lang, available, q } = filters || {}
+    const page =
+      Number.isInteger(pagination.page) && pagination.page > 0
+        ? pagination.page
+        : 1
 
-    if (sector !== undefined) {
-      if (!Array.isArray(sector)) {
-        const err = new Error("Invalid sector value")
-        err.statusCode = 400
-        throw err
-      }
+    const limit =
+      Number.isInteger(pagination.limit) &&
+      pagination.limit >= 1 &&
+      pagination.limit <= 50
+        ? pagination.limit
+        : 20
 
-      sector.forEach(s => {
-        if (typeof s !== "string" || s.length > 30) {
-          const err = new Error("Invalid sector value")
-          err.statusCode = 400
-          throw err
-        }
-      })
+    if (sector !== undefined && !Array.isArray(sector)) {
+      throw this._badRequest("Invalid sector filter")
     }
 
-    if (lang !== undefined) {
-      if (!Array.isArray(lang)) {
-        const err = new Error("Invalid language code")
-        err.statusCode = 400
-        throw err
-      }
-
-      lang.forEach(language => {
-        if (typeof language !== "string" || language.length !== 2) {
-          const err = new Error("Invalid language code")
-          err.statusCode = 400
-          throw err
-        }
-      })
+    if (lang !== undefined && !Array.isArray(lang)) {
+      throw this._badRequest("Invalid language filter")
     }
 
     if (available !== undefined && typeof available !== "boolean") {
-      const err = new Error("Invalid availability type")
-      err.statusCode = 400
-      throw err
+      throw this._badRequest("Invalid availability filter")
     }
 
-    if (
-      q !== undefined &&
-      (typeof q !== "string" || q.length > 50)
-    ) {
-      const err = new Error("Your search request is either too long or of an invalid type")
-      err.statusCode = 400
-      throw err
+    if (q !== undefined && (typeof q !== "string" || q.length > 50)) {
+      throw this._badRequest("Invalid search query")
     }
 
-    let safePage = 1
-    let safeLimit = 20
-
-    if (Number.isInteger(page) && page > 0) {
-      safePage = page
-    }
-
-    if (Number.isInteger(limit) && limit >= 1 && limit <= 50) {
-      safeLimit = limit
-    }
-
-    const offset = (safePage - 1) * safeLimit
+    const offset = (page - 1) * limit
 
     const { items, total } =
       await this.mentorRepository.findMentors(
         { sector, lang, available, q },
-        { limit: safeLimit, offset }
+        { limit, offset }
       )
 
     return {
       items,
-      meta: {
-        page: safePage,
-        limit: safeLimit,
-        total
-      }
+      meta: { page, limit, total }
     }
   }
 
-  async getMentorById(mentorId) {
-    const mentor = await this.mentorRepository.findMentorById(mentorId)
+  async getMentorById(id) {
+    const mentor =
+      await this.mentorRepository.findMentorById(id)
+
     if (!mentor) {
-      const error = new Error("Mentor not found")
-      error.statusCode = 404
-      throw error
+      const err = new Error("Mentor not found")
+      err.statusCode = 404
+      throw err
     }
+
     return mentor
   }
 
   async getMentorAvailability(mentorId, range) {
-    const { from, to } = range
+    const mentor =
+      await this.mentorRepository.findMentorById(mentorId)
 
-    const mentor = await this.mentorRepository.findMentorById(mentorId)
     if (!mentor) {
-      const error = new Error("Mentor not found")
-      error.statusCode = 404
-      throw error
+      const err = new Error("Mentor not found")
+      err.statusCode = 404
+      throw err
     }
 
     const now = new Date()
-    const defaultFrom = now
-    const defaultTo = new Date(now)
-    defaultTo.setDate(defaultTo.getDate() + 7)
+    const fromDate = range.from ? new Date(range.from) : now
+    const toDate = range.to
+      ? new Date(range.to)
+      : new Date(now.getTime() + 7 * 86400000)
 
-    let fromDate = defaultFrom
-    let toDate = defaultTo
-
-    if (from) {
-      fromDate = new Date(from)
+    if (
+      isNaN(fromDate.getTime()) || isNaN(toDate.getTime()) || fromDate >= toDate) {
+      throw this._badRequest("Invalid date range")
     }
 
-    if (to) {
-      toDate = new Date(to)
-    }
-
-    if (isNaN(fromDate.getTime()) || isNaN(toDate.getTime())) {
-      const err = new Error("Invalid date format")
-      err.statusCode = 400
-      throw err
-    }
-
-    if (fromDate >= toDate) {
-      const err = new Error("'from' must be before 'to'")
-      err.statusCode = 400
-      throw err
-    }
-
-    const availability =
-      await this.mentorRepository.findMentorAvailability(
-        mentorId,
-        { fromDate, toDate }
-      )
-
-    return availability
+    return this.mentorRepository.findMentorAvailability(
+      mentorId,
+      { fromDate, toDate }
+    )
   }
 
-  async updateMentorProfile(mentorId, profileData) {
+   
+  async updateMentorProfile(mentorId, fields) {
     const mentor = await this.mentorRepository.findMentorById(mentorId)
+    
     if (!mentor) {
-      const error = new Error("Mentor not found")
-      error.statusCode = 404
-      throw error
+      const err = new Error("Mentor not found")
+      err.statusCode = 404
+      throw err
     }
-
-    const {
-      id,
-      user_id,
-      rating_avg,
-      rating_count,
-      updated_at,
-      ...safeUpdate
-    } = profileData
-
-    const { bio, sectors, languages, meeting_link_template } = safeUpdate
-
-    if (bio !== undefined) {
-      if (typeof bio !== "string") {
-        const err = new Error("Bio must be a string")
-        err.statusCode = 400
-        throw err
-      }
-
-      if (bio.length > 1000) {
-        const err = new Error("Bio too long")
-        err.statusCode = 400
-        throw err
-      }
-    }
-
-    if (sectors !== undefined) {
-      if (!Array.isArray(sectors)) {
-        const err = new Error("Sectors must be an array")
-        err.statusCode = 400
-        throw err
-      }
-
-      for (const sector of sectors) {
-        if (typeof sector !== "string") {
-          const err = new Error("Each sector must be a string")
-          err.statusCode = 400
-          throw err
-        }
-      }
-    }
-
-    if (languages !== undefined) {
-      if (!Array.isArray(languages)) {
-        const err = new Error("Languages must be an array")
-        err.statusCode = 400
-        throw err
-      }
-
-      for (const lang of languages) {
-        if (typeof lang !== "string") {
-          const err = new Error("Each language must be a string")
-          err.statusCode = 400
-          throw err
-        }
-
-        if (lang.length !== 2) {
-          const err = new Error("Each language must be 2 characters long")
-          err.statusCode = 400
-          throw err
-        }
-      }
-    }
-
-    if (meeting_link_template !== undefined) {
-      if (typeof meeting_link_template !== "string") {
-        const err = new Error("Meeting link must be a string")
-        err.statusCode = 400
-        throw err
-      }
-
-      if (meeting_link_template.length > 100) {
-        const err = new Error("Meeting link too long")
-        err.statusCode = 400
-        throw err
-      }
-    }
-
-    const updatedProfile =
-      await this.mentorRepository.putMentorProfile(
-        mentorId,
-        safeUpdate
-      )
-
-    return updatedProfile
+  
+    const updated = await this.mentorRepository.updateMentorProfile(mentorId, fields)
+    return updated
   }
-
+  
   async createMentorAvailability(mentorId, slots) {
     const mentor = await this.mentorRepository.findMentorById(mentorId)
+    
     if (!mentor) {
-      const error = new Error("Mentor not found")
-      error.statusCode = 404
-      throw error
-    }
-
-    if (!slots) {
-      const error = new Error("Slots not provided")
-      error.statusCode = 400
-      throw error
-    }
-
-    if (!Array.isArray(slots)) {
-      const err = new Error("Slots must be an array")
-      err.statusCode = 400
+      const err = new Error("Mentor not found")
+      err.statusCode = 404
       throw err
     }
+  
+    return await this.mentorRepository.createMentorAvailability(mentorId, slots)
+  }
 
-    for (const slot of slots) {
-      const { start_time, end_time } = slot
-
-      if (!start_time || !end_time) {
-        const err = new Error("Slot must include start_time and end_time")
-        err.statusCode = 400
-        throw err
-      }
-
-      const fromDate = new Date(start_time)
-      const toDate = new Date(end_time)
-
-      if (isNaN(fromDate.getTime()) || isNaN(toDate.getTime())) {
-        const err = new Error("Invalid date format")
-        err.statusCode = 400
-        throw err
-      }
-
-      if (fromDate >= toDate) {
-        const err = new Error("start_time must be before end_time")
-        err.statusCode = 400
-        throw err
-      }
-
-      const now = new Date()
-
-      if (fromDate.getTime() < now.getTime()) {
-        const err = new Error("start_time cannot be in the past")
-        err.statusCode = 400
-        throw err
-      }
-    }
+  _badRequest(message) {
+    const err = new Error(message)
+    err.statusCode = 400
+    return err
   }
 }
 
 module.exports = MentorService
+
