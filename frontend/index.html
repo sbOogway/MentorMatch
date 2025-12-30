@@ -1,68 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description"
-          content="MentorMatch - Esame pratico di Tecnologie Innovative per lo Sviluppo Web di I.G. e K.S.">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="MentorMatch - Esame pratico di Tecnologie Innovative per lo Sviluppo Web di I.G. e K.S."
+    />
 
-    <link rel="preconnect" href="https://images.unsplash.com">
-    <link rel="preconnect" href="https://cdn.jsdelivr.net">
-    <link rel="dns-prefetch" href="https://images.unsplash.com">
+    <link rel="preconnect" href="https://images.unsplash.com" />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+    <link rel="dns-prefetch" href="https://images.unsplash.com" />
 
     <title>MentorMatch</title>
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="images/favicon.png">
+    <link rel="icon" type="image/png" href="images/favicon.png" />
 
     <!-- CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link type="text/css" rel="stylesheet" href="css/style.css">
-    <link rel="preconnect" href="https://rsms.me/">
-    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <link type="text/css" rel="stylesheet" href="css/style.css" />
+    <link rel="preconnect" href="https://rsms.me/" />
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
 
     <!-- JS -->
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"
-            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"
+      integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+      crossorigin="anonymous"
+    ></script>
 
-<script>
-    const apiBaseUrl = "";
+    <script>
+      const apiBaseUrl = "";
 
-    // Global state
-    let mentorList = [];
-    let currentPage = 1;
-    let totalPages = 1;
-    let appliedFilters = {};
+      // Global state
+      let mentorList = [];
+      let currentPage = 1;
+      let totalPages = 1;
+      let appliedFilters = {};
 
-    // Options for sectors/skills (shown in the filter sidebar)
-    const sectorOptions = [
-    { id: "software", label: "Sviluppo Software", value: "Software" },
-    { id: "data", label: "Dati & Analytics", value: "Data" },
-    { id: "product", label: "Gestione Prodotto", value: "Product" },
-    { id: "marketing", label: "Marketing & Crescita", value: "Marketing" }
-];
+      // Options for sectors/skills (shown in the filter sidebar)
+      const sectorOptions = [
+        { id: "software", label: "Sviluppo Software", value: "Software" },
+        { id: "data", label: "Dati & Analytics", value: "Data" },
+        { id: "product", label: "Gestione Prodotto", value: "Product" },
+        { id: "marketing", label: "Marketing & Crescita", value: "Marketing" },
+      ];
 
-
-    $(document).ready(function () {
+      $(document).ready(function () {
         renderSectorFilters();
         initFilterLayout();
         initEventHandlers();
 
         // initial load
         loadMentors(1, {});
-    });
+      });
 
-    /**
-     * Render sector filters (checkboxes) inside #skills
-     */
-    function renderSectorFilters() {
+      /**
+       * Render sector filters (checkboxes) inside #skills
+       */
+      function renderSectorFilters() {
         const $skillsContainer = $("#skills");
         $skillsContainer.empty();
 
         sectorOptions.forEach(function (sector) {
-            const html = `
+          const html = `
                 <div class="form-check">
                     <input class="form-check-input"
                            type="checkbox"
@@ -74,221 +85,227 @@
                     </label>
                 </div>
             `;
-            $skillsContainer.append(html);
+          $skillsContainer.append(html);
         });
-    }
+      }
 
-    /**
-     * Initialize filter section behaviour (mobile / desktop)
-     */
-    function initFilterLayout() {
+      /**
+       * Initialize filter section behaviour (mobile / desktop)
+       */
+      function initFilterLayout() {
         // Mobile toggle
         $("#mobileFilterToggle").click(function (event) {
-            event.stopPropagation();
-            $("#filterSection").toggleClass("d-none d-block");
+          event.stopPropagation();
+          $("#filterSection").toggleClass("d-none d-block");
         });
 
         // Close when clicking outside on mobile
         $(document).click(function (event) {
-            if (!$(event.target).closest("#filterSection").length &&
-                !$(event.target).is("#mobileFilterToggle") &&
-                $("#filterSection").hasClass("d-block") &&
-                window.innerWidth < 992) {
-                $("#filterSection").removeClass("d-block").addClass("d-none");
-            }
+          if (
+            !$(event.target).closest("#filterSection").length &&
+            !$(event.target).is("#mobileFilterToggle") &&
+            $("#filterSection").hasClass("d-block") &&
+            window.innerWidth < 992
+          ) {
+            $("#filterSection").removeClass("d-block").addClass("d-none");
+          }
         });
 
         // On resize, adapt visibility
         $(window).resize(function () {
-            if (window.innerWidth >= 992) {
-                $("#filterSection").removeClass("d-none d-block").addClass("d-lg-block");
-            } else {
-                if (!$("#filterSection").hasClass("d-block")) {
-                    $("#filterSection").addClass("d-none").removeClass("d-lg-block");
-                }
+          if (window.innerWidth >= 992) {
+            $("#filterSection")
+              .removeClass("d-none d-block")
+              .addClass("d-lg-block");
+          } else {
+            if (!$("#filterSection").hasClass("d-block")) {
+              $("#filterSection").addClass("d-none").removeClass("d-lg-block");
             }
+          }
         });
 
         // Initial state
         if (window.innerWidth >= 992) {
-            $("#filterSection").addClass("d-lg-block");
+          $("#filterSection").addClass("d-lg-block");
         }
-    }
+      }
 
-    /**
-     * Initialize all event handlers
-     */
-    function initEventHandlers() {
+      /**
+       * Initialize all event handlers
+       */
+      function initEventHandlers() {
         initSorting();
         initFiltersForm();
         initSearchForm();
-    }
+      }
 
-    /**
-     * Handle "Ordina per" select
-     * Sorting is done client-side on the mentorList array
-     */
-    function initSorting() {
+      /**
+       * Handle "Ordina per" select
+       * Sorting is done client-side on the mentorList array
+       */
+      function initSorting() {
         $("#sortBy").change(function () {
-            appliedFilters.sortBy = $(this).val();
-            renderMentors(mentorList, appliedFilters.sortBy);
+          appliedFilters.sortBy = $(this).val();
+          renderMentors(mentorList, appliedFilters.sortBy);
         });
-    }
+      }
 
-    /**
-     * Handle filters form submit
-     */
-    function initFiltersForm() {
+      /**
+       * Handle filters form submit
+       */
+      function initFiltersForm() {
         $("#filtersForm").submit(function (event) {
-            event.preventDefault();
+          event.preventDefault();
 
-            // sectors (checkboxes)
-            const selectedSectors = [];
-            $('input[name="sector"]:checked').each(function () {
-                selectedSectors.push($(this).val());
-            });
+          // sectors (checkboxes)
+          const selectedSectors = [];
+          $('input[name="sector"]:checked').each(function () {
+            selectedSectors.push($(this).val());
+          });
 
-            // language (checkboxes) -> take first selected (simple behaviour)
-            let selectedLanguage = null;
-            const langs = $('input[name="language"]:checked');
-            if (langs.length > 0) {
-                const first = $(langs[0]).val();
-                if (first === "italiano") selectedLanguage = "it";
-                if (first === "inglese") selectedLanguage = "en";
-            }
+          // language (checkboxes) -> take first selected (simple behaviour)
+          let selectedLanguage = null;
+          const langs = $('input[name="language"]:checked');
+          if (langs.length > 0) {
+            const first = $(langs[0]).val();
+            if (first === "italiano") selectedLanguage = "it";
+            if (first === "inglese") selectedLanguage = "en";
+          }
 
-            // availability: we map only "Disponibile ora" to available=true
-            const availableNow = $("#availableNow").is(":checked");
+          // availability: we map only "Disponibile ora" to available=true
+          const availableNow = $("#availableNow").is(":checked");
 
-            appliedFilters = {
-                sectors: selectedSectors,
-                language: selectedLanguage,
-                available: availableNow,
-                sortBy: $("#sortBy").val(),
-                q: appliedFilters.q || null // keep current search term if any
-            };
+          appliedFilters = {
+            sectors: selectedSectors,
+            language: selectedLanguage,
+            available: availableNow,
+            sortBy: $("#sortBy").val(),
+            q: appliedFilters.q || null, // keep current search term if any
+          };
 
-            loadMentors(1, appliedFilters);
+          loadMentors(1, appliedFilters);
         });
-    }
+      }
 
-    /**
-     * Handle search form (hero search)
-     */
-    function initSearchForm() {
+      /**
+       * Handle search form (hero search)
+       */
+      function initSearchForm() {
         $("#searchForm").submit(function (event) {
-            event.preventDefault();
-            const query = $("#searchInput").val().trim();
-            appliedFilters.q = query || null;
-            loadMentors(1, appliedFilters);
+          event.preventDefault();
+          const query = $("#searchInput").val().trim();
+          appliedFilters.q = query || null;
+          loadMentors(1, appliedFilters);
         });
 
         // If user clears the search input, reload without q
         $("#searchInput").on("input", function () {
-            if ($(this).val().trim() === "" && appliedFilters.q) {
-                appliedFilters.q = null;
-                loadMentors(1, appliedFilters);
-            }
+          if ($(this).val().trim() === "" && appliedFilters.q) {
+            appliedFilters.q = null;
+            loadMentors(1, appliedFilters);
+          }
         });
-    }
+      }
 
-    /**
-     * Load mentors from backend with filters + pagination
-     */
-    function loadMentors(page = 1, filters = {}) {
+      /**
+       * Load mentors from backend with filters + pagination
+       */
+      function loadMentors(page = 1, filters = {}) {
         // show skeletons only when loading first page
         if (page === 1) {
-            $("#mentors").empty().append(createLoadingSkeletons(6));
+          $("#mentors").empty().append(createLoadingSkeletons(6));
         }
 
         const url = buildMentorsApiUrl(page, filters);
 
         $.ajax({
-            url: url,
-            type: "GET",
-            dataType: "json",
-            success: function (data) {
-                // Adapt to spec: { items: [...], meta: { page, limit, total } }
-                const items = data.items || [];
-                const meta = data.meta || {};
+          url: url,
+          type: "GET",
+          dataType: "json",
+          success: function (data) {
+            // Adapt to spec: { items: [...], meta: { page, limit, total } }
+            const items = data.items || [];
+            const meta = data.meta || {};
 
-                if (page === 1) {
-                    mentorList = items;
-                    $("#mentors").empty();
-                } else {
-                    mentorList = mentorList.concat(items);
-                }
-
-                currentPage = meta.page || page;
-                const total = meta.total || mentorList.length;
-                const limit = meta.limit || items.length || 1;
-                totalPages = Math.max(1, Math.ceil(total / limit));
-
-                if (mentorList.length === 0) {
-                    $("#mentors").html(
-                        '<div class="col-12 text-center">Nessun mentor trovato con i filtri selezionati.</div>'
-                    );
-                } else {
-                    renderMentors(mentorList, appliedFilters.sortBy);
-                }
-
-                handleLoadMoreButton();
-            },
-            error: function (xhr, status, error) {
-                console.error("Error loading mentors:", error);
-                if (page === 1) {
-                    $("#mentors").empty().append(
-                        '<div class="col-12 text-center text-danger">Si è verificato un errore durante il caricamento dei mentor. Riprova più tardi.</div>'
-                    );
-                }
-                $("#load-more-container").remove();
+            if (page === 1) {
+              mentorList = items;
+              $("#mentors").empty();
+            } else {
+              mentorList = mentorList.concat(items);
             }
-        });
-    }
 
-    /**
-     * Render mentors list into #mentors
-     */
-    function renderMentors(list, sortBy) {
+            currentPage = meta.page || page;
+            const total = meta.total || mentorList.length;
+            const limit = meta.limit || items.length || 1;
+            totalPages = Math.max(1, Math.ceil(total / limit));
+
+            if (mentorList.length === 0) {
+              $("#mentors").html(
+                '<div class="col-12 text-center">Nessun mentor trovato con i filtri selezionati.</div>'
+              );
+            } else {
+              renderMentors(mentorList, appliedFilters.sortBy);
+            }
+
+            handleLoadMoreButton();
+          },
+          error: function (xhr, status, error) {
+            console.error("Error loading mentors:", error);
+            if (page === 1) {
+              $("#mentors")
+                .empty()
+                .append(
+                  '<div class="col-12 text-center text-danger">Si è verificato un errore durante il caricamento dei mentor. Riprova più tardi.</div>'
+                );
+            }
+            $("#load-more-container").remove();
+          },
+        });
+      }
+
+      /**
+       * Render mentors list into #mentors
+       */
+      function renderMentors(list, sortBy) {
         let mentorsToRender = [...list];
 
-        if(sortBy=== "rating_desc"){
-            mentorsToRender.sort((a,b)=> (b.rating || 0)- (a.rating || 0));
-        }else if(sortBy === "rating_asc"){
-            mentorsToRender.sort((a,b) => (a.rating || 0) - (b.rating || 0));
-        }
-        else if (sortBy === "experience_desc") {
-            //placeholder
+        if (sortBy === "rating_desc") {
+          mentorsToRender.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+        } else if (sortBy === "rating_asc") {
+          mentorsToRender.sort((a, b) => (a.rating || 0) - (b.rating || 0));
+        } else if (sortBy === "experience_desc") {
+          //placeholder
         } else if (sortBy === "experience_asc") {
-            //placeholder
+          //placeholder
         } else if (sortBy === "recent") {
-            //placeholder
+          //placeholder
         } else if (sortBy === "featured") {
-            //default: rating desc
-            mentorsToRender.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+          //default: rating desc
+          mentorsToRender.sort((a, b) => (b.rating || 0) - (a.rating || 0));
         }
 
         $("#mentors").empty();
         mentorsToRender.forEach(function (mentor) {
-            $("#mentors").append(createMentorCardHtml(mentor));
+          $("#mentors").append(createMentorCardHtml(mentor));
         });
-    }
+      }
 
-    /**
-     * Create HTML card for a single mentor
-     */
-    function createMentorCardHtml(mentor) {
+      /**
+       * Create HTML card for a single mentor
+       */
+      function createMentorCardHtml(mentor) {
         const name = mentor.full_name || "Mentor";
         const bio = mentor.bio || mentor.summary || "Bio non disponibile.";
         const sectors = (mentor.sectors || []).join(", ");
         const langs = (mentor.languages || [])
-            .map(function (code) {
-                if (code === "it") return "Italiano";
-                if (code === "en") return "Inglese";
-                return code;
-            })
-            .join(", ");
-        const rating = mentor.rating != null ? mentor.rating.toFixed(1) : "N.D.";
+          .map(function (code) {
+            if (code === "it") return "Italiano";
+            if (code === "en") return "Inglese";
+            return code;
+          })
+          .join(", ");
+        const rating =
+          mentor.rating != null ? mentor.rating.toFixed(1) : "N.D.";
 
         return `
             <div class="col-12 col-lg-4 mb-3">
@@ -316,15 +333,15 @@
                 </div>
             </div>
         `;
-    }
+      }
 
-    /**
-     * Create loading skeletons while fetching data
-     */
-    function createLoadingSkeletons(count = 6) {
+      /**
+       * Create loading skeletons while fetching data
+       */
+      function createLoadingSkeletons(count = 6) {
         let html = "";
         for (let i = 0; i < count; i++) {
-            html += `
+          html += `
                 <div class="col-12 col-lg-4 mb-3">
                     <div class="card h-100 shadow-sm">
                         <div class="ratio ratio-4x3 bg-light placeholder-glow">
@@ -346,16 +363,16 @@
             `;
         }
         return html;
-    }
+      }
 
-    /**
-     * Show / hide "Load more mentors" button
-     */
-    function handleLoadMoreButton() {
+      /**
+       * Show / hide "Load more mentors" button
+       */
+      function handleLoadMoreButton() {
         $("#load-more-container").remove();
 
         if (currentPage < totalPages) {
-            const html = `
+          const html = `
                 <div id="load-more-container" class="row mt-4 mb-5">
                     <div class="col-12 text-center">
                         <button id="load-more-btn" class="btn btn-outline-dark">
@@ -364,304 +381,447 @@
                     </div>
                 </div>
             `;
-            $("#mentors").parent().after(html);
+          $("#mentors").parent().after(html);
 
-            $("#load-more-btn").click(function () {
-                $(this)
-                    .prop("disabled", true)
-                    .html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Caricamento...');
-                loadMentors(currentPage + 1, appliedFilters);
-            });
+          $("#load-more-btn").click(function () {
+            $(this)
+              .prop("disabled", true)
+              .html(
+                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Caricamento...'
+              );
+            loadMentors(currentPage + 1, appliedFilters);
+          });
         }
-    }
+      }
 
-    function buildMentorsApiUrl(page, filters) {
+      function buildMentorsApiUrl(page, filters) {
         let url = `${apiBaseUrl}/api/mentors?page=${page}&limit=9`;
 
         if (filters.sectors && filters.sectors.length > 0) {
-            const sectorsParam = encodeURIComponent(filters.sectors.join(","));
-            url += `&sector=${sectorsParam}`;
+          const sectorsParam = encodeURIComponent(filters.sectors.join(","));
+          url += `&sector=${sectorsParam}`;
         }
 
         if (filters.language) {
-            url += `&lang=${encodeURIComponent(filters.language)}`;
+          url += `&lang=${encodeURIComponent(filters.language)}`;
         }
 
         if (filters.available === true) {
-            url += `&available=true`;
+          url += `&available=true`;
         }
 
         if (filters.q) {
-            url += `&q=${encodeURIComponent(filters.q)}`;
+          url += `&q=${encodeURIComponent(filters.q)}`;
         }
 
         return url;
-    }
+      }
 
-    document.addEventListener('DOMContentLoaded', () => {
-        const banner = document.getElementById('cookie-banner');
-        if (!localStorage.getItem('cookieConsent')) {
-            setTimeout(() => banner.classList.add('show'), 50);
+      document.addEventListener("DOMContentLoaded", () => {
+        const banner = document.getElementById("cookie-banner");
+        if (!localStorage.getItem("cookieConsent")) {
+          setTimeout(() => banner.classList.add("show"), 50);
         }
 
-        document.getElementById('acceptCookies').addEventListener('click', () => {
-            localStorage.setItem('cookieConsent', 'true');
-            banner.classList.remove('show');
-            setTimeout(() => banner.style.display = 'none', 400);
-        });
+        document
+          .getElementById("acceptCookies")
+          .addEventListener("click", () => {
+            localStorage.setItem("cookieConsent", "true");
+            banner.classList.remove("show");
+            setTimeout(() => (banner.style.display = "none"), 400);
+          });
 
-        document.getElementById('rejectCookies').addEventListener('click', () => {
-            localStorage.setItem('cookieConsent', 'false');
-            banner.classList.remove('show');
-            setTimeout(() => banner.style.display = 'none', 400);
-        });
-    });
-</script>
-</head>
+        document
+          .getElementById("rejectCookies")
+          .addEventListener("click", () => {
+            localStorage.setItem("cookieConsent", "false");
+            banner.classList.remove("show");
+            setTimeout(() => (banner.style.display = "none"), 400);
+          });
+      });
+    </script>
+  </head>
 
-<body style = "padding-top: 55px;">
-<!--Header - definito in common/header/header.html -->
-<div id ="header-placeholder"></div>
+  <body style="padding-top: 55px">
+    <!--Header - definito in common/header/header.html -->
+    <div id="header-placeholder"></div>
 
-<div class= "container-fluid">
-
-    <!--Hero Section-->
-    <div class="row bg-slightly-dark py-5 justify-content-center ">
-        <div class= "col-12">
-            <p class="h1 fw-bolder text-center"> Trova il mentor ideale per la tua crescita</p>
+    <div class="container-fluid">
+      <!--Hero Section-->
+      <div class="row bg-slightly-dark py-5 justify-content-center">
+        <div class="col-12">
+          <p class="h1 fw-bolder text-center">
+            Trova il mentor ideale per la tua crescita
+          </p>
         </div>
-        <div class= "col-12 mt-3">
-            <p class= "text-center text-break lh-sm text-description-hero mx-auto">
-                Entra in contatto con professionisti esperti pronti ad aiutare a crescere, migliorare e raggiungere i tuoi obiettivi.
-            </p>
+        <div class="col-12 mt-3">
+          <p class="text-center text-break lh-sm text-description-hero mx-auto">
+            Entra in contatto con professionisti esperti pronti ad aiutare a
+            crescere, migliorare e raggiungere i tuoi obiettivi.
+          </p>
         </div>
 
         <!--Search bar-->
-        <div class = "col-12 mt-3">
-            <form class= "d-flex justify-content-center" id= "searchForm">
-                <input class = "form-control me-2 search-hero-form" type = "search" placeholder= "Cerca un mentor (es. Programmazione, Marketing...)"
-                aria-label= "Search" id= "searchInput">
-                <button class= "btn btn-dark py-2" type= "submit">Cerca</button>
-            </form>
+        <div class="col-12 mt-3">
+          <form class="d-flex justify-content-center" id="searchForm">
+            <input
+              class="form-control me-2 search-hero-form"
+              type="search"
+              placeholder="Cerca un mentor (es. Programmazione, Marketing...)"
+              aria-label="Search"
+              id="searchInput"
+            />
+            <button class="btn btn-dark py-2" type="submit">Cerca</button>
+          </form>
         </div>
-    </div>
+      </div>
 
-    <!--Body-->
-    <div class= "container-xxl mt-4">
-        <div class= "row">
-
-           <!--FILTRI MOBILE-->
-           <div class= "d-lg-none mb-3">
+      <!--Body-->
+      <div class="container-xxl mt-4">
+        <div class="row">
+          <!--FILTRI MOBILE-->
+          <div class="d-lg-none mb-3">
             <div class="row justify-content-between">
-                <div class= "col-auto">
-                    <p class= "fs-5 text-start fw-bold mb-4">Filtri</p>
-                </div>
-                <div class= "col-auto">
-                    <button id= "mobileFilterToggle" class="btn btn-outline-dark border-dark border-opacity-25 "
-                    type= "button">
-                   <i class= "bi bi-funnel me-2"></i>Filtri
-                       </button>
-                   </div>
-               </div>
-           </div> 
-
-           <!--Filtri -Desktop-->
-           <div id="filterSection" class="col-lg-3 d-lg-block d-none ">
+              <div class="col-auto">
                 <p class="fs-5 text-start fw-bold mb-4">Filtri</p>
+              </div>
+              <div class="col-auto">
+                <button
+                  id="mobileFilterToggle"
+                  class="btn btn-outline-dark border-dark border-opacity-25"
+                  type="button"
+                >
+                  <i class="bi bi-funnel me-2"></i>Filtri
+                </button>
+              </div>
+            </div>
+          </div>
 
-                <form id="filtersForm" class="filters-form">
+          <!--Filtri -Desktop-->
+          <div id="filterSection" class="col-lg-3 d-lg-block d-none">
+            <p class="fs-5 text-start fw-bold mb-4">Filtri</p>
 
-                    <!--Categoria/Comptenze-->
-                    <div class= "row border-bottom-1">
-                        <div class= "col-12">
-                            <a class="text-decoration-none text-dark" data-bs-toggle= "collapse" href= "#skills"
-                            role= "button" aria-expanded= "false" aria-controls= "skills">
-                            <div class= "row justify-content-between">
-                                <div class= "col-auto">
-                                    <p class= "fs-6 text-start fw-semibold w-100">Area di competenze</p>
-                                </div>
-                                <div class= "col-auto">
-                                    <i class= "bi-chevron-down text-end"></i>
-                                </div>
-                            </div>
-                        </a>
-                        <div class= "collapse show" id= "skills">
-                            <!--Skills loaded via jQuery-->
-                             </div>
-                        </div>
+            <form id="filtersForm" class="filters-form">
+              <!--Categoria/Comptenze-->
+              <div class="row border-bottom-1">
+                <div class="col-12">
+                  <a
+                    class="text-decoration-none text-dark"
+                    data-bs-toggle="collapse"
+                    href="#skills"
+                    role="button"
+                    aria-expanded="false"
+                    aria-controls="skills"
+                  >
+                    <div class="row justify-content-between">
+                      <div class="col-auto">
+                        <p class="fs-6 text-start fw-semibold w-100">
+                          Area di competenze
+                        </p>
+                      </div>
+                      <div class="col-auto">
+                        <i class="bi-chevron-down text-end"></i>
+                      </div>
                     </div>
-                    <!--Esperienza-->
-                    <div class="row border-bottom-1 mt-3">
-                        <div class= "col-12">
-                            <a class= "text-decoration-none text-dark" data-bs-toggle= "collapse" href= "#experience"
-                            role= "button" aria-expanded= "false" aria-controls= "experience">
-                            <div class= "row justify-content-between">
-                                <div class= "col-auto">
-                                    <p class= "fs-6 text-start fw-semibold w-100">Livello di esperienza</p>
-                                </div>
-                                <div class= "col-auto">
-                                    <i class= "bi-chevron-down text-end"></i>
-                                </div>
-                            </div>
-                           </a>
-                           <div class="collapse show" id="experience">
-                            <div class= "row pb-3 mt-2">
-                                <div class="col-12">
-                                    <div class= "form-check">
-                                        <input class= "form-check-input" type= "checkbox" id= "junior" name= "experience" value= "junior">
-                                        <label class= "form-check-label" for= "junior">Junior</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class= "form-check-input" type="checkbox" id= "mid" name="experience" value="mid">
-                                        <label class="form-check-label" for="senior">Intermedio</label>
-                                    </div>
-                                    <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="senior" name="experience" value="senior">
-                                            <label class="form-check-label" for="senior">Senior</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                  </a>
+                  <div class="collapse show" id="skills">
+                    <!--Skills loaded via jQuery-->
+                  </div>
+                </div>
+              </div>
+              <!--Esperienza-->
+              <div class="row border-bottom-1 mt-3">
+                <div class="col-12">
+                  <a
+                    class="text-decoration-none text-dark"
+                    data-bs-toggle="collapse"
+                    href="#experience"
+                    role="button"
+                    aria-expanded="false"
+                    aria-controls="experience"
+                  >
+                    <div class="row justify-content-between">
+                      <div class="col-auto">
+                        <p class="fs-6 text-start fw-semibold w-100">
+                          Livello di esperienza
+                        </p>
+                      </div>
+                      <div class="col-auto">
+                        <i class="bi-chevron-down text-end"></i>
+                      </div>
                     </div>
-                 </div>
+                  </a>
+                  <div class="collapse show" id="experience">
+                    <div class="row pb-3 mt-2">
+                      <div class="col-12">
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            id="junior"
+                            name="experience"
+                            value="junior"
+                          />
+                          <label class="form-check-label" for="junior"
+                            >Junior</label
+                          >
+                        </div>
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            id="mid"
+                            name="experience"
+                            value="mid"
+                          />
+                          <label class="form-check-label" for="senior"
+                            >Intermedio</label
+                          >
+                        </div>
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            id="senior"
+                            name="experience"
+                            value="senior"
+                          />
+                          <label class="form-check-label" for="senior"
+                            >Senior</label
+                          >
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-                 <!--Lingua-->
-                 <div class="row border-bottom-1 mt-3">
-                        <div class="col-12">
-                            <a class="text-decoration-none text-dark" data-bs-toggle="collapse" href="#languages"
-                               role="button" aria-expanded="false" aria-controls="languages">
-                                <div class="row justify-content-between">
-                                    <div class="col-auto">
-                                        <p class="fs-6 text-start fw-semibold w-100">Lingua</p>
-                                    </div>
-                                    <div class="col-auto">
-                                        <i class="bi-chevron-down"></i>
-                                    </div>
-                                </div>
-                            </a>
-                            <div class="collapse show" id="languages">
-                                <div class="form-check mt-2">
-                                    <input class="form-check-input" type="checkbox" id="langItalian" name="language" value="italiano">
-                                    <label class="form-check-label" for="langItalian">Italiano</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="langEnglish" name="language" value="inglese">
-                                    <label class="form-check-label" for="langEnglish">Inglese</label>
-                                </div>
-                            </div>
-                        </div>
+              <!--Lingua-->
+              <div class="row border-bottom-1 mt-3">
+                <div class="col-12">
+                  <a
+                    class="text-decoration-none text-dark"
+                    data-bs-toggle="collapse"
+                    href="#languages"
+                    role="button"
+                    aria-expanded="false"
+                    aria-controls="languages"
+                  >
+                    <div class="row justify-content-between">
+                      <div class="col-auto">
+                        <p class="fs-6 text-start fw-semibold w-100">Lingua</p>
+                      </div>
+                      <div class="col-auto">
+                        <i class="bi-chevron-down"></i>
+                      </div>
                     </div>
-                    <!-- Disponibilità -->
-                    <div class="row border-bottom-1 mt-3">
-                        <div class="col-12">
-                            <a class="text-decoration-none text-dark" data-bs-toggle="collapse" href="#availability"
-                               role="button" aria-expanded="false" aria-controls="availability">
-                                <div class="row justify-content-between">
-                                    <div class="col-auto">
-                                        <p class="fs-6 text-start fw-semibold w-100">Disponibilità</p>
-                                    </div>
-                                    <div class="col-auto">
-                                        <i class="bi-chevron-down"></i>
-                                    </div>
-                                </div>
-                            </a>
-                            <div class="collapse" id="availability">
-                                <div class="row pb-3 mt-2">
-                                    <div class="col-12">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="availableNow" name="availability" value="now">
-                                            <label class="form-check-label" for="availableNow">Disponibile ora</label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="weekend" name="availability" value="weekend">
-                                            <label class="form-check-label" for="weekend">Weekend</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                  </a>
+                  <div class="collapse show" id="languages">
+                    <div class="form-check mt-2">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="langItalian"
+                        name="language"
+                        value="italiano"
+                      />
+                      <label class="form-check-label" for="langItalian"
+                        >Italiano</label
+                      >
                     </div>
+                    <div class="form-check">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="langEnglish"
+                        name="language"
+                        value="inglese"
+                      />
+                      <label class="form-check-label" for="langEnglish"
+                        >Inglese</label
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Disponibilità -->
+              <div class="row border-bottom-1 mt-3">
+                <div class="col-12">
+                  <a
+                    class="text-decoration-none text-dark"
+                    data-bs-toggle="collapse"
+                    href="#availability"
+                    role="button"
+                    aria-expanded="false"
+                    aria-controls="availability"
+                  >
+                    <div class="row justify-content-between">
+                      <div class="col-auto">
+                        <p class="fs-6 text-start fw-semibold w-100">
+                          Disponibilità
+                        </p>
+                      </div>
+                      <div class="col-auto">
+                        <i class="bi-chevron-down"></i>
+                      </div>
+                    </div>
+                  </a>
+                  <div class="collapse" id="availability">
+                    <div class="row pb-3 mt-2">
+                      <div class="col-12">
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            id="availableNow"
+                            name="availability"
+                            value="now"
+                          />
+                          <label class="form-check-label" for="availableNow"
+                            >Disponibile ora</label
+                          >
+                        </div>
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            id="weekend"
+                            name="availability"
+                            value="weekend"
+                          />
+                          <label class="form-check-label" for="weekend"
+                            >Weekend</label
+                          >
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-                    <!--Submit Filters-->
-                    <div class= "row mb-4 mt-3">
-                        <div class="col-12">
-                            <button type="submit" class="btn btn-dark w-100">Applica filtri</button>
-                        </div>
-                    </div>
-
+              <!--Submit Filters-->
+              <div class="row mb-4 mt-3">
+                <div class="col-12">
+                  <button type="submit" class="btn btn-dark w-100">
+                    Applica filtri
+                  </button>
+                </div>
+              </div>
             </form>
-        </div>
+          </div>
 
-                     <!-- RISULTATI MENTOR -->
-            <div class="col-12 col-lg-9 ps-md-4">
+          <!-- RISULTATI MENTOR -->
+          <div class="col-12 col-lg-9 ps-md-4">
+            <div
+              class="row gy-lg-2 gy-0 justify-content-center justify-content-lg-between"
+            >
+              <div class="col-auto">
+                <p class="fs-4 text-start fw-bold mb-4">Mentor in evidenza</p>
+              </div>
 
-                <div class="row gy-lg-2 gy-0 justify-content-center justify-content-lg-between">
-                    <div class="col-auto">
-                        <p class="fs-4 text-start fw-bold mb-4">Mentor in evidenza</p>
-                    </div>
-
-                    <div class="col-auto">
-                        <div class="row justify-content-around">
-                            <label class="col-3 col-md-auto col-form-label fs-6 my-auto"
-                                   for="sortBy">Ordina per:</label>
-                            <div class="col-auto my-auto">
-                                <select class="form-select py-1" name="sortBy" id="sortBy">
-                                    <option value="featured" selected>In evidenza</option>
-                                    <option value = "rating_desc">Recensioni migliori</option>
-                                    <option value= "rating_asc">Recensioni peggiori</option>
-                                    <option value="experience_desc">Esperienza maggiore</option>
-                                    <option value="experience_asc">Esperienza minore</option>
-                                    <option value="recent">Più recenti</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
+              <div class="col-auto">
+                <div class="row justify-content-around">
+                  <label
+                    class="col-3 col-md-auto col-form-label fs-6 my-auto"
+                    for="sortBy"
+                    >Ordina per:</label
+                  >
+                  <div class="col-auto my-auto">
+                    <select class="form-select py-1" name="sortBy" id="sortBy">
+                      <option value="featured" selected>In evidenza</option>
+                      <option value="rating_desc">Recensioni migliori</option>
+                      <option value="rating_asc">Recensioni peggiori</option>
+                      <option value="experience_desc">
+                        Esperienza maggiore
+                      </option>
+                      <option value="experience_asc">Esperienza minore</option>
+                      <option value="recent">Più recenti</option>
+                    </select>
+                  </div>
                 </div>
-
-                <div class="row" id="mentors">
-                    <!-- Mentor results loaded via jQuery -->
-                </div>
-
+              </div>
             </div>
 
+            <div class="row" id="mentors">
+              <!-- Mentor results loaded via jQuery -->
+            </div>
+          </div>
         </div>
+      </div>
     </div>
-</div>
 
-<!-- Cookie Banner -->
-<div id="cookie-banner" class="cookie-banner">
-    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+    <!-- Cookie Banner -->
+    <div id="cookie-banner" class="cookie-banner">
+      <div
+        class="container d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center"
+      >
         <div class="mb-2 mb-md-0 small">
-            Utilizziamo solo cookie essenziali per il funzionamento del sito. Consulta la nostra
-            <a href="legal/privacy.html" class="link-dark text-decoration-underline">Privacy Policy</a> e
-            <a href="legal/tos.html" class="link-dark text-decoration-underline">Termini di Servizio</a>.
+          Utilizziamo solo cookie essenziali per il funzionamento del sito.
+          Consulta la nostra
+          <a
+            href="legal/privacy.html"
+            class="link-dark text-decoration-underline"
+            >Privacy Policy</a
+          >
+          e
+          <a href="legal/tos.html" class="link-dark text-decoration-underline"
+            >Termini di Servizio</a
+          >.
         </div>
         <div class="d-flex align-items-center">
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="checkbox" id="essentialCookies" checked disabled>
-                <label class="form-check-label small" for="essentialCookies">Essenziali</label>
-            </div>
-            <div class="form-check form-check-inline ms-2">
-                <input class="form-check-input" type="checkbox" id="analyticsCookies" disabled>
-                <label class="form-check-label small" for="analyticsCookies">Analitici</label>
-            </div>
-            <div class="form-check form-check-inline ms-2">
-                <input class="form-check-input" type="checkbox" id="marketingCookies" disabled>
-                <label class="form-check-label small" for="marketingCookies">Marketing</label>
-            </div>
-            <button id="rejectCookies" class="btn btn-secondary btn-sm ms-3">Rifiuta</button>
-            <button id="acceptCookies" class="btn btn-dark btn-sm ms-2">Accetta</button>
+          <div class="form-check form-check-inline">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="essentialCookies"
+              checked
+              disabled
+            />
+            <label class="form-check-label small" for="essentialCookies"
+              >Essenziali</label
+            >
+          </div>
+          <div class="form-check form-check-inline ms-2">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="analyticsCookies"
+              disabled
+            />
+            <label class="form-check-label small" for="analyticsCookies"
+              >Analitici</label
+            >
+          </div>
+          <div class="form-check form-check-inline ms-2">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="marketingCookies"
+              disabled
+            />
+            <label class="form-check-label small" for="marketingCookies"
+              >Marketing</label
+            >
+          </div>
+          <button id="rejectCookies" class="btn btn-secondary btn-sm ms-3">
+            Rifiuta
+          </button>
+          <button id="acceptCookies" class="btn btn-dark btn-sm ms-2">
+            Accetta
+          </button>
         </div>
+      </div>
     </div>
-</div>
 
-<!-- Bootstra e Footer - definito in common/footer.html -->
-<div id="footer-placeholder"></div>
+    <!-- Bootstra e Footer - definito in common/footer.html -->
+    <div id="footer-placeholder"></div>
 
-<!-- Bootstrap -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq"
-        crossorigin="anonymous"></script>
-<script src= "js/headerfooterloader.js"></script>
-</body>
+    <!-- Bootstrap -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq"
+      crossorigin="anonymous"
+    ></script>
+    <script src="js/headerfooterloader.js"></script>
+  </body>
 </html>
