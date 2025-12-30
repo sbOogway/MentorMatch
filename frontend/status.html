@@ -1,258 +1,368 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description"
-          content="MentorMatch - Esame pratico di Tecnologie Innovative per lo Sviluppo Web di I.G. e K.S.">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="MentorMatch - Esame pratico di Tecnologie Innovative per lo Sviluppo Web di I.G. e K.S."
+    />
 
-    <link rel="preconnect" href="https://images.unsplash.com">
-    <link rel="preconnect" href="https://cdn.jsdelivr.net">
-    <link rel="dns-prefetch" href="https://images.unsplash.com">
+    <link rel="preconnect" href="https://images.unsplash.com" />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+    <link rel="dns-prefetch" href="https://images.unsplash.com" />
 
     <title>Status API - MentorMatch</title>
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="images/favicon.png">
+    <link rel="icon" type="image/png" href="images/favicon.png" />
 
     <!-- CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link type="text/css" rel="stylesheet" href="css/style.css">
-    <link rel="preconnect" href="https://rsms.me/">
-    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <link type="text/css" rel="stylesheet" href="css/style.css" />
+    <link rel="preconnect" href="https://rsms.me/" />
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
 
     <!-- JS -->
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"
-            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"
+      integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+      crossorigin="anonymous"
+    ></script>
 
     <style>
-        .spin {
-            animation: spin 1s linear infinite;
-        }
+      .spin {
+        animation: spin 1s linear infinite;
+      }
 
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to   { transform: rotate(360deg); }
+      @keyframes spin {
+        from {
+          transform: rotate(0deg);
         }
-
-        .card-body .badge {
-            font-size: 0.75rem;
+        to {
+          transform: rotate(360deg);
         }
+      }
 
-        .bg-slightly-dark {
-            background-color: #f8f9fa !important;
-        }
+      .card-body .badge {
+        font-size: 0.75rem;
+      }
 
-        .badge.bg-info,
-        .badge.bg-success,
-        .badge.bg-danger,
-        .badge.bg-secondary {
-            color: white !important;
-        }
+      .bg-slightly-dark {
+        background-color: #f8f9fa !important;
+      }
 
-        .badge.bg-warning.text-dark {
-            color: #856404 !important;
-        }
+      .badge.bg-info,
+      .badge.bg-success,
+      .badge.bg-danger,
+      .badge.bg-secondary {
+        color: white !important;
+      }
 
-        .bi-lock-fill, .bi-globe {
-            font-size: 0.8rem;
-        }
+      .badge.bg-warning.text-dark {
+        color: #856404 !important;
+      }
 
-        .card-body:hover {
-            background-color: #f0f0f0 !important;
-            transition: background-color 0.2s ease;
-        }
+      .bi-lock-fill,
+      .bi-globe {
+        font-size: 0.8rem;
+      }
 
-        .card:hover {
-            transform: scale(1.01) !important;
-        }
+      .card-body:hover {
+        background-color: #f0f0f0 !important;
+        transition: background-color 0.2s ease;
+      }
 
+      .card:hover {
+        transform: scale(1.01) !important;
+      }
     </style>
 
     <script>
-        const urlBaseApi = "";
-        let intervalloAggiornamento;
-        let tempiRisposta = [];
-        let contaSuccessi = 0;
-        let contaErrori = 0;
+      const urlBaseApi = "";
+      let intervalloAggiornamento;
+      let tempiRisposta = [];
+      let contaSuccessi = 0;
+      let contaErrori = 0;
 
-        
-        const endpointDaTestare = {
-            autenticazione: [
-                {metodo: "POST", endpoint: "/api/auth/register", nome: "Registrazione", pubblico: true},
-                {metodo: "POST", endpoint: "/api/auth/login", nome: "Login", pubblico: true},
-                {metodo: "GET",  endpoint: "/api/auth/me", nome: "Utente corrente", richiedeAuth: true}
-            ],
+      const endpointDaTestare = {
+        autenticazione: [
+          {
+            metodo: "POST",
+            endpoint: "/api/auth/register",
+            nome: "Registrazione",
+            pubblico: true,
+          },
+          {
+            metodo: "POST",
+            endpoint: "/api/auth/login",
+            nome: "Login",
+            pubblico: true,
+          },
+          {
+            metodo: "GET",
+            endpoint: "/api/auth/me",
+            nome: "Utente corrente",
+            richiedeAuth: true,
+          },
+        ],
 
-            mentors: [
-                {metodo: "GET",  endpoint: "/api/mentors",                   nome: "Lista Mentor", pubblico: true},
-                {metodo: "GET",  endpoint: "/api/mentors/123",              nome: "Dettaglio Mentor (id fittizio)", pubblico: true},
-                {metodo: "GET",  endpoint: "/api/mentors/123/availability", nome: "Disponibilità Mentor (id fittizio)", pubblico: true},
-                {metodo: "GET",  endpoint: "/api/mentors/123/feedback",     nome: "Feedback Mentor (id fittizio)", pubblico: true},
-                {metodo: "POST", endpoint: "/api/mentors/profile",          nome: "Aggiorna profilo Mentor", richiedeAuth: true},
-                {metodo: "POST", endpoint: "/api/mentors/availability",     nome: "Aggiungi disponibilità", richiedeAuth: true}
-            ],
+        mentors: [
+          {
+            metodo: "GET",
+            endpoint: "/api/mentors",
+            nome: "Lista Mentor",
+            pubblico: true,
+          },
+          {
+            metodo: "GET",
+            endpoint: "/api/mentors/123",
+            nome: "Dettaglio Mentor (id fittizio)",
+            pubblico: true,
+          },
+          {
+            metodo: "GET",
+            endpoint: "/api/mentors/123/availability",
+            nome: "Disponibilità Mentor (id fittizio)",
+            pubblico: true,
+          },
+          {
+            metodo: "GET",
+            endpoint: "/api/mentors/123/feedback",
+            nome: "Feedback Mentor (id fittizio)",
+            pubblico: true,
+          },
+          {
+            metodo: "POST",
+            endpoint: "/api/mentors/profile",
+            nome: "Aggiorna profilo Mentor",
+            richiedeAuth: true,
+          },
+          {
+            metodo: "POST",
+            endpoint: "/api/mentors/availability",
+            nome: "Aggiungi disponibilità",
+            richiedeAuth: true,
+          },
+        ],
 
-            booking: [
-                {metodo: "POST", endpoint: "/api/booking",             nome: "Crea prenotazione", richiedeAuth: true},
-                {metodo: "GET",  endpoint: "/api/booking/my",          nome: "Le mie prenotazioni", richiedeAuth: true},
-                {metodo: "POST", endpoint: "/api/booking/123/cancel",  nome: "Cancella prenotazione (id fittizio)", richiedeAuth: true},
-                {metodo: "POST", endpoint: "/api/booking/123/complete",nome: "Completa sessione (id fittizio)", richiedeAuth: true}
-            ],
+        booking: [
+          {
+            metodo: "POST",
+            endpoint: "/api/booking",
+            nome: "Crea prenotazione",
+            richiedeAuth: true,
+          },
+          {
+            metodo: "GET",
+            endpoint: "/api/booking/my",
+            nome: "Le mie prenotazioni",
+            richiedeAuth: true,
+          },
+          {
+            metodo: "POST",
+            endpoint: "/api/booking/123/cancel",
+            nome: "Cancella prenotazione (id fittizio)",
+            richiedeAuth: true,
+          },
+          {
+            metodo: "POST",
+            endpoint: "/api/booking/123/complete",
+            nome: "Completa sessione (id fittizio)",
+            richiedeAuth: true,
+          },
+        ],
 
-            reviews: [
-                {metodo: "POST", endpoint: "/api/reviews",              nome: "Lascia recensione", richiedeAuth: true},
-                {metodo: "GET",  endpoint: "/api/reviews/mentor/123",   nome: "Recensioni Mentor (id fittizio)", pubblico: true}
-            ],
+        reviews: [
+          {
+            metodo: "POST",
+            endpoint: "/api/reviews",
+            nome: "Lascia recensione",
+            richiedeAuth: true,
+          },
+          {
+            metodo: "GET",
+            endpoint: "/api/reviews/mentor/123",
+            nome: "Recensioni Mentor (id fittizio)",
+            pubblico: true,
+          },
+        ],
 
-            messages: [
-                {metodo: "GET", endpoint: "/api/messages/my", nome: "Messaggi dell'utente", richiedeAuth: true}
-            ]
-        };
+        messages: [
+          {
+            metodo: "GET",
+            endpoint: "/api/messages/my",
+            nome: "Messaggi dell'utente",
+            richiedeAuth: true,
+          },
+        ],
+      };
 
-       
-        $(document).ready(function () {
-            verificaStatoApi();
-            avviaAggiornamentoAutomatico();
+      $(document).ready(function () {
+        verificaStatoApi();
+        avviaAggiornamentoAutomatico();
+      });
+
+      function verificaStatoApi() {
+        $("#btn-aggiorna").prop("disabled", true);
+        $("#btn-aggiorna i").addClass("spin");
+
+        pulisciRisultati();
+
+        const tuttiPromise = [];
+
+        Object.keys(endpointDaTestare).forEach((categoria) => {
+          endpointDaTestare[categoria].forEach((endpoint) => {
+            tuttiPromise.push(testaEndpoint(categoria, endpoint));
+          });
         });
 
-        
-        function verificaStatoApi() {
-            $("#btn-aggiorna").prop("disabled", true);
-            $("#btn-aggiorna i").addClass("spin");
+        Promise.all(tuttiPromise).then(() => {
+          aggiornaStatistiche();
+          aggiornaUltimoAggiornamento();
+          $("#btn-aggiorna").prop("disabled", false);
+          $("#btn-aggiorna i").removeClass("spin");
+        });
+      }
 
-            pulisciRisultati();
+      function testaEndpoint(categoria, endpoint) {
+        return new Promise((resolve) => {
+          const tempoInizio = Date.now();
+          let metodoTest = "HEAD";
+          let opzioniAjax = {
+            url: urlBaseApi + endpoint.endpoint,
+            method: metodoTest,
+            timeout: 5000,
+          };
 
-            const tuttiPromise = [];
+          if (
+            endpoint.metodo === "POST" ||
+            endpoint.metodo === "PUT" ||
+            endpoint.metodo === "DELETE"
+          ) {
+            metodoTest = "OPTIONS";
+            opzioniAjax.method = metodoTest;
+          }
 
-            Object.keys(endpointDaTestare).forEach(categoria => {
-                endpointDaTestare[categoria].forEach(endpoint => {
-                    tuttiPromise.push(testaEndpoint(categoria, endpoint));
-                });
-            });
-
-            Promise.all(tuttiPromise).then(() => {
-                aggiornaStatistiche();
-                aggiornaUltimoAggiornamento();
-                $("#btn-aggiorna").prop("disabled", false);
-                $("#btn-aggiorna i").removeClass("spin");
-            });
-        }
-
-       
-        function testaEndpoint(categoria, endpoint) {
-            return new Promise((resolve) => {
-                const tempoInizio = Date.now();
-                let metodoTest = "HEAD";
-                let opzioniAjax = {
-                    url: urlBaseApi + endpoint.endpoint,
-                    method: metodoTest,
-                    timeout: 5000
-                };
-
-                
-                if (endpoint.metodo === "POST" || endpoint.metodo === "PUT" || endpoint.metodo === "DELETE") {
-                    metodoTest = "OPTIONS";
-                    opzioniAjax.method = metodoTest;
-                }
-
-                
-                if (endpoint.richiedeAuth) {
-                    const token = localStorage.getItem("sessionToken");
-                    if (token) {
-                        opzioniAjax.headers = {
-                            "Authorization": `Bearer ${token}`
-                        };
-                    }
-                }
-
-                console.log(`Testing ${endpoint.metodo} ${endpoint.endpoint} (metodo HTTP usato: ${metodoTest})`);
-
-                $.ajax(opzioniAjax)
-                    .done(function () {
-                        const tempoRisposta = Date.now() - tempoInizio;
-                        tempiRisposta.push(tempoRisposta);
-                        contaSuccessi++;
-                        aggiornaEndpointUI(categoria, endpoint, "success", tempoRisposta);
-                        resolve();
-                    })
-                    .fail(function (xhr) {
-                        const tempoRisposta = Date.now() - tempoInizio;
-                        let stato = "error";
-
-                        if (xhr.status === 401) {
-                            stato = endpoint.richiedeAuth ? "warning" : "error";
-                            tempiRisposta.push(tempoRisposta);
-                        } else if (xhr.status === 403 || xhr.status === 405) {
-                            stato = "warning";
-                            tempiRisposta.push(tempoRisposta);
-                        } else if (xhr.status === 404) {
-                            // Per endpoint con id fittizi tipo /123 -> "limitato"
-                            if (endpoint.endpoint.match(/\/123/)) {
-                                stato = "warning";
-                                tempiRisposta.push(tempoRisposta);
-                            } else {
-                                stato = "error";
-                                contaErrori++;
-                            }
-                        } else if (xhr.status >= 200 && xhr.status < 300) {
-                            stato = "success";
-                            tempiRisposta.push(tempoRisposta);
-                        } else if (xhr.status >= 500) {
-                            stato = "error";
-                            contaErrori++;
-                        } else {
-                            stato = "warning";
-                            tempiRisposta.push(tempoRisposta);
-                        }
-
-                        aggiornaEndpointUI(categoria, endpoint, stato, tempoRisposta);
-                        resolve();
-                    });
-            });
-        }
-
-        
-        function aggiornaEndpointUI(categoria, endpoint, stato, tempoRisposta) {
-            let badgeClass = "bg-danger";
-            let icona = "x-circle";
-            let testoStato = "Non disponibile";
-
-            if (stato === "success") {
-                badgeClass = "bg-success";
-                icona = "check-circle";
-                testoStato = "Attivo";
-            } else if (stato === "warning") {
-                badgeClass = "bg-warning text-dark";
-                icona = "exclamation-triangle";
-
-                if (endpoint.richiedeAuth) {
-                    testoStato = "Richiede auth";
-                } else if (endpoint.endpoint.match(/\/123/)) {
-                    testoStato = "Test limitato (id fittizio)";
-                } else {
-                    testoStato = "Limitato";
-                }
+          if (endpoint.richiedeAuth) {
+            const token = localStorage.getItem("sessionToken");
+            if (token) {
+              opzioniAjax.headers = {
+                Authorization: `Bearer ${token}`,
+              };
             }
+          }
 
-            const metodoBadgeClass =
-                endpoint.metodo === "GET"    ? "bg-info" :
-                endpoint.metodo === "POST"   ? "bg-success" :
-                endpoint.metodo === "PUT"    ? "bg-warning text-dark" :
-                endpoint.metodo === "DELETE" ? "bg-danger" : "bg-secondary";
+          console.log(
+            `Testing ${endpoint.metodo} ${endpoint.endpoint} (metodo HTTP usato: ${metodoTest})`
+          );
 
-            const html = `
+          $.ajax(opzioniAjax)
+            .done(function () {
+              const tempoRisposta = Date.now() - tempoInizio;
+              tempiRisposta.push(tempoRisposta);
+              contaSuccessi++;
+              aggiornaEndpointUI(categoria, endpoint, "success", tempoRisposta);
+              resolve();
+            })
+            .fail(function (xhr) {
+              const tempoRisposta = Date.now() - tempoInizio;
+              let stato = "error";
+
+              if (xhr.status === 401) {
+                stato = endpoint.richiedeAuth ? "warning" : "error";
+                tempiRisposta.push(tempoRisposta);
+              } else if (xhr.status === 403 || xhr.status === 405) {
+                stato = "warning";
+                tempiRisposta.push(tempoRisposta);
+              } else if (xhr.status === 404) {
+                // Per endpoint con id fittizi tipo /123 -> "limitato"
+                if (endpoint.endpoint.match(/\/123/)) {
+                  stato = "warning";
+                  tempiRisposta.push(tempoRisposta);
+                } else {
+                  stato = "error";
+                  contaErrori++;
+                }
+              } else if (xhr.status >= 200 && xhr.status < 300) {
+                stato = "success";
+                tempiRisposta.push(tempoRisposta);
+              } else if (xhr.status >= 500) {
+                stato = "error";
+                contaErrori++;
+              } else {
+                stato = "warning";
+                tempiRisposta.push(tempoRisposta);
+              }
+
+              aggiornaEndpointUI(categoria, endpoint, stato, tempoRisposta);
+              resolve();
+            });
+        });
+      }
+
+      function aggiornaEndpointUI(categoria, endpoint, stato, tempoRisposta) {
+        let badgeClass = "bg-danger";
+        let icona = "x-circle";
+        let testoStato = "Non disponibile";
+
+        if (stato === "success") {
+          badgeClass = "bg-success";
+          icona = "check-circle";
+          testoStato = "Attivo";
+        } else if (stato === "warning") {
+          badgeClass = "bg-warning text-dark";
+          icona = "exclamation-triangle";
+
+          if (endpoint.richiedeAuth) {
+            testoStato = "Richiede auth";
+          } else if (endpoint.endpoint.match(/\/123/)) {
+            testoStato = "Test limitato (id fittizio)";
+          } else {
+            testoStato = "Limitato";
+          }
+        }
+
+        const metodoBadgeClass =
+          endpoint.metodo === "GET"
+            ? "bg-info"
+            : endpoint.metodo === "POST"
+            ? "bg-success"
+            : endpoint.metodo === "PUT"
+            ? "bg-warning text-dark"
+            : endpoint.metodo === "DELETE"
+            ? "bg-danger"
+            : "bg-secondary";
+
+        const html = `
             <div class="col-lg-6 col-xl-4">
                 <div class="card border-0 bg-slightly-dark">
                     <div class="card-body py-2 px-3">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <span class="badge ${metodoBadgeClass} me-2">${endpoint.metodo}</span>
+                                <span class="badge ${metodoBadgeClass} me-2">${
+          endpoint.metodo
+        }</span>
                                 <span class="fw-medium">${endpoint.nome}</span>
-                                ${endpoint.richiedeAuth ? '<i class="bi bi-lock-fill text-muted ms-1" title="Richiede autenticazione"></i>' : ''}
-                                ${endpoint.pubblico ? '<i class="bi bi-globe text-success ms-1" title="Endpoint pubblico"></i>' : ''}
+                                ${
+                                  endpoint.richiedeAuth
+                                    ? '<i class="bi bi-lock-fill text-muted ms-1" title="Richiede autenticazione"></i>'
+                                    : ""
+                                }
+                                ${
+                                  endpoint.pubblico
+                                    ? '<i class="bi bi-globe text-success ms-1" title="Endpoint pubblico"></i>'
+                                    : ""
+                                }
                             </div>
                             <div class="text-end">
                                 <span class="badge ${badgeClass}">
@@ -265,246 +375,319 @@
                 </div>
             </div>`;
 
-            $(`#stato-${categoria}`).append(html);
-        }
+        $(`#stato-${categoria}`).append(html);
+      }
 
-       
-        function aggiornaStatistiche() {
-            const tuttiEndpoint = Object.values(endpointDaTestare).flat();
-            const endpointAttivi = contaSuccessi;
-            let endpointNonAttivi = contaErrori;
+      function aggiornaStatistiche() {
+        const tuttiEndpoint = Object.values(endpointDaTestare).flat();
+        const endpointAttivi = contaSuccessi;
+        let endpointNonAttivi = contaErrori;
 
-            if (endpointNonAttivi < 0) endpointNonAttivi = 0;
+        if (endpointNonAttivi < 0) endpointNonAttivi = 0;
 
-            const tempoMedio = tempiRisposta.length > 0
-                ? Math.round(tempiRisposta.reduce((a, b) => a + b, 0) / tempiRisposta.length)
-                : 0;
+        const tempoMedio =
+          tempiRisposta.length > 0
+            ? Math.round(
+                tempiRisposta.reduce((a, b) => a + b, 0) / tempiRisposta.length
+              )
+            : 0;
 
-            const percentualeUptime = tuttiEndpoint.length > 0
-                ? Math.round((endpointAttivi / tuttiEndpoint.length) * 100)
-                : 0;
+        const percentualeUptime =
+          tuttiEndpoint.length > 0
+            ? Math.round((endpointAttivi / tuttiEndpoint.length) * 100)
+            : 0;
 
-            $("#servizi-attivi").text(endpointAttivi);
-            $("#servizi-non-attivi").text(endpointNonAttivi);
-            $("#tempo-risposta-medio").text(tempoMedio);
-            $("#percentuale-uptime").text(percentualeUptime + "%");
-        }
+        $("#servizi-attivi").text(endpointAttivi);
+        $("#servizi-non-attivi").text(endpointNonAttivi);
+        $("#tempo-risposta-medio").text(tempoMedio);
+        $("#percentuale-uptime").text(percentualeUptime + "%");
+      }
 
-        function aggiornaUltimoAggiornamento() {
-            const ora = new Date().toLocaleTimeString("it-IT");
-            $("#ultimo-aggiornamento").text(ora);
-        }
+      function aggiornaUltimoAggiornamento() {
+        const ora = new Date().toLocaleTimeString("it-IT");
+        $("#ultimo-aggiornamento").text(ora);
+      }
 
-        function avviaAggiornamentoAutomatico() {
-            intervalloAggiornamento = setInterval(verificaStatoApi, 30000); // ogni 30 secondi
-        }
+      function avviaAggiornamentoAutomatico() {
+        intervalloAggiornamento = setInterval(verificaStatoApi, 30000); // ogni 30 secondi
+      }
 
-        function pulisciRisultati() {
-            contaSuccessi = 0;
-            contaErrori = 0;
-            tempiRisposta = [];
+      function pulisciRisultati() {
+        contaSuccessi = 0;
+        contaErrori = 0;
+        tempiRisposta = [];
 
-            Object.keys(endpointDaTestare).forEach(categoria => {
-                $(`#stato-${categoria}`).empty();
-            });
-        }
-
-        $(window).on("beforeunload", function () {
-            if (intervalloAggiornamento) {
-                clearInterval(intervalloAggiornamento);
-            }
+        Object.keys(endpointDaTestare).forEach((categoria) => {
+          $(`#stato-${categoria}`).empty();
         });
+      }
 
-    document.addEventListener('DOMContentLoaded', () => {
-        const banner = document.getElementById('cookie-banner');
-        if (!localStorage.getItem('cookieConsent')) {
-            setTimeout(() => banner.classList.add('show'), 50);
+      $(window).on("beforeunload", function () {
+        if (intervalloAggiornamento) {
+          clearInterval(intervalloAggiornamento);
+        }
+      });
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const banner = document.getElementById("cookie-banner");
+        if (!localStorage.getItem("cookieConsent")) {
+          setTimeout(() => banner.classList.add("show"), 50);
         }
 
-        document.getElementById('acceptCookies').addEventListener('click', () => {
-            localStorage.setItem('cookieConsent', 'true');
-            banner.classList.remove('show');
-            setTimeout(() => banner.style.display = 'none', 400);
-        });
+        document
+          .getElementById("acceptCookies")
+          .addEventListener("click", () => {
+            localStorage.setItem("cookieConsent", "true");
+            banner.classList.remove("show");
+            setTimeout(() => (banner.style.display = "none"), 400);
+          });
 
-        document.getElementById('rejectCookies').addEventListener('click', () => {
-            localStorage.setItem('cookieConsent', 'false');
-            banner.classList.remove('show');
-            setTimeout(() => banner.style.display = 'none', 400);
-        });
-    });
-</script>
-</head>
-<body class="bg-white">
+        document
+          .getElementById("rejectCookies")
+          .addEventListener("click", () => {
+            localStorage.setItem("cookieConsent", "false");
+            banner.classList.remove("show");
+            setTimeout(() => (banner.style.display = "none"), 400);
+          });
+      });
+    </script>
+  </head>
+  <body class="bg-white">
+    <div id="header-placeholder"></div>
 
-<div id="header-placeholder"></div>
-
-<div class="container-fluid mt-5 pt-4 pb-3">
-    <div class="row">
+    <div class="container-fluid mt-5 pt-4 pb-3">
+      <div class="row">
         <div class="col-12">
-            <div class="row justify-content-between align-items-center mb-2 mb-md-0 pt-2 pt-md-0">
-                <div class="col-12 col-md-6">
-                    <h1 class="fw-bold">Stato API</h1>
-                    <p class="text-muted">Monitoraggio in tempo reale dello stato delle API di MentorMatch.</p>
-                </div>
-                <div class="col-12 col-md-auto text-center">
-                    <span class="me-2 text-muted">Ultimo aggiornamento:</span>
-                    <span id="ultimo-aggiornamento" class="badge bg-dark">--</span>
-                    <button id="btn-aggiorna" class="btn btn-outline-dark ms-3" onclick="verificaStatoApi()">
-                        <i class="bi bi-arrow-clockwise"></i> Aggiorna
-                    </button>
-                </div>
+          <div
+            class="row justify-content-between align-items-center mb-2 mb-md-0 pt-2 pt-md-0"
+          >
+            <div class="col-12 col-md-6">
+              <h1 class="fw-bold">Stato API</h1>
+              <p class="text-muted">
+                Monitoraggio in tempo reale dello stato delle API di
+                MentorMatch.
+              </p>
             </div>
-
-            
-            <div class="row mb-4">
-                <div class="col-lg-3 col-md-6 mb-3">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <div class="d-flex justify-content-center align-items-center mb-2">
-                                <i class="bi bi-check-circle text-success fs-2 me-2"></i>
-                                <span id="servizi-attivi" class="fs-1 fw-bold text-success">0</span>
-                            </div>
-                            <h6 class="card-title text-muted">Servizi attivi</h6>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 mb-3">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <div class="d-flex justify-content-center align-items-center mb-2">
-                                <i class="bi bi-x-circle text-danger fs-2 me-2"></i>
-                                <span id="servizi-non-attivi" class="fs-1 fw-bold text-danger">0</span>
-                            </div>
-                            <h6 class="card-title text-muted">Servizi non disponibili</h6>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 mb-3">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <div class="d-flex justify-content-center align-items-center mb-2">
-                                <i class="bi bi-clock text-warning fs-2 me-2"></i>
-                                <span id="tempo-risposta-medio" class="fs-1 fw-bold text-warning">--</span>
-                            </div>
-                            <h6 class="card-title text-muted">Tempo risposta medio (ms)</h6>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 mb-3">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <div class="d-flex justify-content-center align-items-center mb-2">
-                                <i class="bi bi-percent text-info fs-2 me-2"></i>
-                                <span id="percentuale-uptime" class="fs-1 fw-bold text-info">--</span>
-                            </div>
-                            <h6 class="card-title text-muted">Uptime (%)</h6>
-                        </div>
-                    </div>
-                </div>
+            <div class="col-12 col-md-auto text-center">
+              <span class="me-2 text-muted">Ultimo aggiornamento:</span>
+              <span id="ultimo-aggiornamento" class="badge bg-dark">--</span>
+              <button
+                id="btn-aggiorna"
+                class="btn btn-outline-dark ms-3"
+                onclick="verificaStatoApi()"
+              >
+                <i class="bi bi-arrow-clockwise"></i> Aggiorna
+              </button>
             </div>
+          </div>
 
-            
-            <div class="row">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header bg-white">
-                            <h5 class="mb-0">Stato dettagliato endpoint</h5>
-                            <small class="text-muted">
-                                <i class="bi bi-check-circle text-success"></i> Attivo
-                                <span class="mx-2">|</span>
-                                <i class="bi bi-exclamation-triangle text-warning"></i> Limitato / Richiede auth
-                                <span class="mx-2">|</span>
-                                <i class="bi bi-x-circle text-danger"></i> Non disponibile
-                                <span class="mx-2">|</span>
-                                <i class="bi bi-lock-fill text-muted"></i> Richiede autenticazione
-                                <span class="mx-2">|</span>
-                                <i class="bi bi-globe text-success"></i> Pubblico
-                            </small>
-                        </div>
-                        <div class="card-body">
-                            <!-- Autenticazione -->
-                            <div class="mb-4">
-                                <h6 class="fw-bold mb-3">
-                                    <i class="bi bi-shield-check me-2"></i>Autenticazione
-                                </h6>
-                                <div id="stato-autenticazione" class="row g-2"></div>
-                            </div>
-
-                            <!-- Mentors -->
-                            <div class="mb-4">
-                                <h6 class="fw-bold mb-3">
-                                    <i class="bi bi-people me-2"></i>Mentors
-                                </h6>
-                                <div id="stato-mentors" class="row g-2"></div>
-                            </div>
-
-                            <!-- Booking -->
-                            <div class="mb-4">
-                                <h6 class="fw-bold mb-3">
-                                    <i class="bi bi-calendar-check me-2"></i>Prenotazioni
-                                </h6>
-                                <div id="stato-booking" class="row g-2"></div>
-                            </div>
-
-                            <!-- Reviews -->
-                            <div class="mb-4">
-                                <h6 class="fw-bold mb-3">
-                                    <i class="bi bi-star-fill me-2"></i>Recensioni
-                                </h6>
-                                <div id="stato-reviews" class="row g-2"></div>
-                            </div>
-
-                            <!-- Messages -->
-                            <div class="mb-4">
-                                <h6 class="fw-bold mb-3">
-                                    <i class="bi bi-chat-dots me-2"></i>Messaggi
-                                </h6>
-                                <div id="stato-messages" class="row g-2"></div>
-                            </div>
-
-                        </div>
-                    </div>
+          <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+              <div class="card h-100">
+                <div class="card-body text-center">
+                  <div
+                    class="d-flex justify-content-center align-items-center mb-2"
+                  >
+                    <i class="bi bi-check-circle text-success fs-2 me-2"></i>
+                    <span id="servizi-attivi" class="fs-1 fw-bold text-success"
+                      >0</span
+                    >
+                  </div>
+                  <h6 class="card-title text-muted">Servizi attivi</h6>
                 </div>
+              </div>
             </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+              <div class="card h-100">
+                <div class="card-body text-center">
+                  <div
+                    class="d-flex justify-content-center align-items-center mb-2"
+                  >
+                    <i class="bi bi-x-circle text-danger fs-2 me-2"></i>
+                    <span
+                      id="servizi-non-attivi"
+                      class="fs-1 fw-bold text-danger"
+                      >0</span
+                    >
+                  </div>
+                  <h6 class="card-title text-muted">Servizi non disponibili</h6>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+              <div class="card h-100">
+                <div class="card-body text-center">
+                  <div
+                    class="d-flex justify-content-center align-items-center mb-2"
+                  >
+                    <i class="bi bi-clock text-warning fs-2 me-2"></i>
+                    <span
+                      id="tempo-risposta-medio"
+                      class="fs-1 fw-bold text-warning"
+                      >--</span
+                    >
+                  </div>
+                  <h6 class="card-title text-muted">
+                    Tempo risposta medio (ms)
+                  </h6>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+              <div class="card h-100">
+                <div class="card-body text-center">
+                  <div
+                    class="d-flex justify-content-center align-items-center mb-2"
+                  >
+                    <i class="bi bi-percent text-info fs-2 me-2"></i>
+                    <span id="percentuale-uptime" class="fs-1 fw-bold text-info"
+                      >--</span
+                    >
+                  </div>
+                  <h6 class="card-title text-muted">Uptime (%)</h6>
+                </div>
+              </div>
+            </div>
+          </div>
 
+          <div class="row">
+            <div class="col-12">
+              <div class="card">
+                <div class="card-header bg-white">
+                  <h5 class="mb-0">Stato dettagliato endpoint</h5>
+                  <small class="text-muted">
+                    <i class="bi bi-check-circle text-success"></i> Attivo
+                    <span class="mx-2">|</span>
+                    <i class="bi bi-exclamation-triangle text-warning"></i>
+                    Limitato / Richiede auth
+                    <span class="mx-2">|</span>
+                    <i class="bi bi-x-circle text-danger"></i> Non disponibile
+                    <span class="mx-2">|</span>
+                    <i class="bi bi-lock-fill text-muted"></i> Richiede
+                    autenticazione
+                    <span class="mx-2">|</span>
+                    <i class="bi bi-globe text-success"></i> Pubblico
+                  </small>
+                </div>
+                <div class="card-body">
+                  <!-- Autenticazione -->
+                  <div class="mb-4">
+                    <h6 class="fw-bold mb-3">
+                      <i class="bi bi-shield-check me-2"></i>Autenticazione
+                    </h6>
+                    <div id="stato-autenticazione" class="row g-2"></div>
+                  </div>
+
+                  <!-- Mentors -->
+                  <div class="mb-4">
+                    <h6 class="fw-bold mb-3">
+                      <i class="bi bi-people me-2"></i>Mentors
+                    </h6>
+                    <div id="stato-mentors" class="row g-2"></div>
+                  </div>
+
+                  <!-- Booking -->
+                  <div class="mb-4">
+                    <h6 class="fw-bold mb-3">
+                      <i class="bi bi-calendar-check me-2"></i>Prenotazioni
+                    </h6>
+                    <div id="stato-booking" class="row g-2"></div>
+                  </div>
+
+                  <!-- Reviews -->
+                  <div class="mb-4">
+                    <h6 class="fw-bold mb-3">
+                      <i class="bi bi-star-fill me-2"></i>Recensioni
+                    </h6>
+                    <div id="stato-reviews" class="row g-2"></div>
+                  </div>
+
+                  <!-- Messages -->
+                  <div class="mb-4">
+                    <h6 class="fw-bold mb-3">
+                      <i class="bi bi-chat-dots me-2"></i>Messaggi
+                    </h6>
+                    <div id="stato-messages" class="row g-2"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
-</div>
-<!-- Cookie Banner -->
-<div id="cookie-banner" class="cookie-banner">
-    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+    <!-- Cookie Banner -->
+    <div id="cookie-banner" class="cookie-banner">
+      <div
+        class="container d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center"
+      >
         <div class="mb-2 mb-md-0 small">
-            Utilizziamo solo cookie essenziali per il funzionamento del sito. Consulta la nostra
-            <a href="legal/privacy.html" class="link-dark text-decoration-underline">Privacy Policy</a> e
-            <a href="legal/tos.html" class="link-dark text-decoration-underline">Termini di Servizio</a>.
+          Utilizziamo solo cookie essenziali per il funzionamento del sito.
+          Consulta la nostra
+          <a
+            href="legal/privacy.html"
+            class="link-dark text-decoration-underline"
+            >Privacy Policy</a
+          >
+          e
+          <a href="legal/tos.html" class="link-dark text-decoration-underline"
+            >Termini di Servizio</a
+          >.
         </div>
         <div class="d-flex align-items-center">
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="checkbox" id="essentialCookies" checked disabled>
-                <label class="form-check-label small" for="essentialCookies">Essenziali</label>
-            </div>
-            <div class="form-check form-check-inline ms-2">
-                <input class="form-check-input" type="checkbox" id="analyticsCookies" disabled>
-                <label class="form-check-label small" for="analyticsCookies">Analitici</label>
-            </div>
-            <div class="form-check form-check-inline ms-2">
-                <input class="form-check-input" type="checkbox" id="marketingCookies" disabled>
-                <label class="form-check-label small" for="marketingCookies">Marketing</label>
-            </div>
-            <button id="rejectCookies" class="btn btn-secondary btn-sm ms-3">Rifiuta</button>
-            <button id="acceptCookies" class="btn btn-dark btn-sm ms-2">Accetta</button>
+          <div class="form-check form-check-inline">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="essentialCookies"
+              checked
+              disabled
+            />
+            <label class="form-check-label small" for="essentialCookies"
+              >Essenziali</label
+            >
+          </div>
+          <div class="form-check form-check-inline ms-2">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="analyticsCookies"
+              disabled
+            />
+            <label class="form-check-label small" for="analyticsCookies"
+              >Analitici</label
+            >
+          </div>
+          <div class="form-check form-check-inline ms-2">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="marketingCookies"
+              disabled
+            />
+            <label class="form-check-label small" for="marketingCookies"
+              >Marketing</label
+            >
+          </div>
+          <button id="rejectCookies" class="btn btn-secondary btn-sm ms-3">
+            Rifiuta
+          </button>
+          <button id="acceptCookies" class="btn btn-dark btn-sm ms-2">
+            Accetta
+          </button>
         </div>
+      </div>
     </div>
-</div>
 
-<!-- Bootstra e Footer - definito in common/footer.html -->
-<div id="footer-placeholder"></div>
+    <!-- Bootstra e Footer - definito in common/footer.html -->
+    <div id="footer-placeholder"></div>
 
-<!-- Bootstrap -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq"
-        crossorigin="anonymous"></script>
-<script src= "js/headerfooterloader.js"></script>
-</body>
+    <!-- Bootstrap -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq"
+      crossorigin="anonymous"
+    ></script>
+    <script src="js/headerfooterloader.js"></script>
+  </body>
 </html>
