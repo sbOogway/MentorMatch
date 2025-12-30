@@ -37,37 +37,17 @@ $(document).ready(() => {
    
     const token = localStorage.getItem("sessionToken");
     const user = JSON.parse(localStorage.getItem("userData") || "null");
+   const role = (user?.role || "").toLowerCase().trim();
 
-    console.log("ORIGIN:", window.location.origin);
-console.log("TOKEN exists?", !!token, token?.slice(0, 15) + "...");
-console.log("USER raw:", localStorage.getItem("userData"));
-console.log("USER parsed:", user);
-console.log("ROLE:", user?.role, "normalized:", user?.role?.toLowerCase()?.trim());
-/*
-    if(!token || !user || user.role?.toLowerCase().trim() !== "mentor"){
-        alert("Acesso riservato ai mentor.");
-        window.location.href= "/auth/autenticazione.html?tab=login";
-        return;
-    }
-*/
-    if(!token){
-  alert("Devi fare login.");
-  window.location.href= "/auth/autenticazione.html?tab=login";
+if (!token || !user) {
+  alert("Sessione mancante. Rifai login.");
+  window.location.href = "/auth/autenticazione.html?tab=login";
   return;
 }
 
-if(!user){
-  alert("Sessione non valida. Rifai login.");
-  localStorage.removeItem("sessionToken");
-  localStorage.removeItem("userData");
-  window.location.href= "/auth/autenticazione.html?tab=login";
-  return;
-}
-
-const role = (user.role || "").toLowerCase().trim();
-if(role !== "mentor"){
-  alert("Accesso riservato ai mentor.");
-  window.location.href= "/dashboard_router.html";
+if (role !== "mentor") {
+  alert("Accesso riservato ai mentor. Role trovato: " + role);
+  window.location.href = "/dashboard_router.html";
   return;
 }
 
