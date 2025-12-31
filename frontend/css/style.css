@@ -65,7 +65,6 @@ input:focus, textarea:focus, select:focus {
     min-height: 200px; 
 }
 
-/* Mentor card (equivalente alle card dei prodotti) */
 .mentor-card {
     border: 1px solid #dee2e6;
     border-radius: 0.375rem;
@@ -134,9 +133,9 @@ input:focus, textarea:focus, select:focus {
     border-color: #ced4da;
 }
 
-/* -----------------------------------
+/*
    RESPONSIVE (mobile)
------------------------------------ */
+*/
 
 @media (max-width: 768px) {
 
@@ -160,7 +159,6 @@ input:focus, textarea:focus, select:focus {
     .cookie-banner #rejectCookies {
         margin-top: 0.25rem;
     }
-
 
     .text-description-hero {
         max-width: 100%;

@@ -157,6 +157,7 @@
         $.ajax({
           url: `${apiBaseUrl}/api/messages/my`,
           type: "GET",
+          headers: { Authorization: "Bearer " + token },
           success: function (messages) {
             const box = $("#messages-list");
             box.empty();

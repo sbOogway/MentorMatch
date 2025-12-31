@@ -20,11 +20,11 @@
         <!--Sessioni -->
         <li class="nav-item ms-3">
           <a
+            id="sessions-link"
             class="btn btn-outline-dark border border-dark border-opacity-25 position-relative"
             href="/dashboard_router.html"
             title="Your Sessions "
-            aria
-            label="Your Sessions"
+            arialabel="Your Sessions"
           >
             <i class="bi bi-calendar-check"></i>
 
@@ -36,6 +36,39 @@
           </a>
         </li>
 
+        <li class="nav-item ms-3 position-relative">
+          <button
+            id="notifBtn"
+            type="button"
+            class="btn btn-outline-dark border border-dark border-opacity-25 position-relative"
+            title="Notifiche"
+            >
+            <i class="bi bi-bell"></i>
+            <span
+              id="notifBadge"
+              class="position-absolute top-0 start-100 badge rounded-pill bg-dark"
+              style="transform: translate(-65%, -30%);"
+              >0</span>
+          </button>
+
+          <div 
+          id="notifDropdown"
+          class="card shadow-sm position-absolute end-0 mt-2 d-none"
+          style="width: 320px; z-index:2000;"
+          >
+        <div class= "card-body">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <strong>Notifiche</strong>
+            <button id="notifClose" class="btn btn-sm btn-outline-secondary">Chiudi</button>
+          </div>
+          <div id="notifList" >
+            <p class="text-muted mb-0">
+              Le notifiche vengono inviate via email dal backend.
+            </p>
+          </div>
+        </div>
+        </div>
+        </li>
         <li class="nav-item ms-3">
           <a
             id="account-link"
