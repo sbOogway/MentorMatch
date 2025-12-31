@@ -304,8 +304,11 @@
             return code;
           })
           .join(", ");
-        const rating =
-          mentor.rating != null ? mentor.rating.toFixed(1) : "N.D.";
+        const ratingNum =
+          mentor.rating == null || mentor.rating == undefined
+            ?NaN
+            :Number(String(mentor.rating).replace(",", "."));
+            const rating= Number.isFinite(ratingNum) ? ratingNum.toFixed(1) : "N.D.";
 
         return `
             <div class="col-12 col-lg-4 mb-3">

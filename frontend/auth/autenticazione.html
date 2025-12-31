@@ -200,11 +200,14 @@
                 }
             
 
-            payload.area_competenza = skillsRaw
-            .split(",")
-            .map(s => s.trim())
-            .filter(s => s.length > 0);
-        }
+            const selected = $("#mentor-skill").val() || [];
+            if (selected.length === 0) {
+                showAlert("Seleziona almeno un'area di competenza.", "warning", "register-feedback");
+                submitButton.prop("disabled", false).html(originalText);
+            return;
+           }
+                payload.area_competenza = selected;
+            }
 
             $.ajax({
                 url: `${urlBaseApi}/api/auth/register`,
@@ -403,6 +406,13 @@
                     <div class="col-md-6">
                         <label for="mentor-skill" class="form-label">Area di competenza</label>
                         <input type="text" class="form-control" id="mentor-skill" placeholder="Es. Programmazione, AI"> 
+                        <select id=" mentor-skill" class="form-select" mutilple required>
+                            <option value= "Software"> Sviluppo Software</option>
+                            <option value= "Data"> Dati & Analytics</option>
+                            <option value= "Product"> Gestione Prodotto</option>
+                            <option value= "Marketing"> Marketing & Crescita</option>
+                        </select>
+                        <small class="text-muted">Puoi selezionare più aree (Ctrl/Command +C).</small>
                     </div>
 
                 </div>

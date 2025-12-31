@@ -9,7 +9,7 @@
     <title> Mentor - MentorMatch</title>
 
     <!--Favicon-->
-    <link rel = "icon" type= "image/png" href= "images/favicon.png">
+    <link rel = "icon" type= "image/png" href= "/images/favicon.png">
 
     <!-- CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     
     <!--Style-->
-    <link type="text/css" rel="stylesheet" href="css/style.css">
+    <link type="text/css" rel="stylesheet" href="/css/style.css">
     
     <!--Fonts-->
     <link rel="preconnect" href="https://rsms.me/">
@@ -67,16 +67,27 @@ const apiBaseUrl = "";
 
 
     function caricaMentor(id) {
+
+        if(!id){
+            console.error("ID mentor mancante nell'URL");
+            $('#mentor-details').hide();
+            $('#mentor-not-found').show();
+            document.title = "Mentor Non Trovato";
+            return; 
+        }
         $.ajax({
             url: `${apiBaseUrl}/api/mentors/${id}`,
             type: 'GET',
             dataType: 'json',
+
             success: function (mentor) {
+                 $('#mentor-not-found').hide();
+                 $('#mentor-details').show();
 
                 datiMentor = mentor;
 
                 $('#mentor-name').text(mentor.full_name);
-                $('#mentor-bio').text(mentor.bio);
+                $('#mentor-bio').text(mentor.bio && mentor.bio.trim() ? mentor.bio : "Nessuna descrizione disponibile.");
                 $('#mentor-sectors').text((mentor.sectors || []).join(", "));
                 $('#mentor-languages').text((mentor.languages || []).join(", "));
                 $('#mentor-rating').text(mentor.rating || "N.D.");
@@ -103,7 +114,7 @@ const apiBaseUrl = "";
                 container.empty();
 
                 if (!slots || slots.length === 0) {
-                    container.html("<p class='text-muted'>Nessuna disponibilità trovata.</p>");
+                    container.html("<p class='text-muted'>Nessuna disponibilità trovata. Riprova più tardi.</p>");
                     return;
                 }
 
@@ -140,7 +151,7 @@ const apiBaseUrl = "";
         const token = localStorage.getItem("sessionToken");
         if (!token) {
             alert("Devi effettuare il login prima di prenotare.");
-            window.location.href = "auth/autenticazione.html?tab=login";
+            window.location.href = "/auth/autenticazione.html?tab=login";
             return;
         }
 
@@ -173,7 +184,7 @@ const apiBaseUrl = "";
     }
 </script>
 </head>
-<body>
+
 <body style="padding-top: 55px;">
 <div id="header-placeholder"></div>
     <div class="container py-5">
@@ -187,7 +198,7 @@ const apiBaseUrl = "";
 
         <div id="mentor-details" class="row g-5">
             <div class="col-md-6">
-                <img id="mentor-photo" src="images/favicon.png" alt="Immagine mentor" class="image-mentor">               
+                <img id="mentor-photo" src="/images/favicon.png" alt="Immagine mentor" class="img-fluid image-mentor">               
             </div>
 
             <!--Informazioni Mentor-->
@@ -227,7 +238,7 @@ const apiBaseUrl = "";
                 </div>
                     <!--Pulsanti-->
                     <div class="d-flex flex-column flex-sm-row gap-3 mb-4">
-                        <button id="book-session-btn" type="button" class="btn btn-dark btn-lg flex-grow-1">
+                        <button id="book-session-btn" type="button" class="btn btn-dark btn-lg flex-grow-1" disabled>
                             <i class="bi bi-calendar-check me-2"></i>
                             Prenota sessione
                         </button>
@@ -241,7 +252,7 @@ const apiBaseUrl = "";
            </div>
         </div>
         
-      <div id="mentor-not-found" class="alert alert-warning mt-4" role="alert">
+      <div id="mentor-not-found" class="alert alert-warning mt-4" role="alert" style= "display:none">
         ⚠️ Mentor non trovato. Verifica l'ID.
       </div>
 
@@ -255,6 +266,6 @@ const apiBaseUrl = "";
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq"
         crossorigin="anonymous"></script>
-<script src= "js/headerfooterloader.js"></script>
+<script src= "/js/headerfooterloader.js"></script>
 </body>
 </html>
