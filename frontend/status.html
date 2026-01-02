@@ -108,14 +108,32 @@
             nome: "Login",
             pubblico: true,
           },
+        ],
+
+        utenti:[
           {
             metodo: "GET",
-            endpoint: "/api/auth/me",
-            nome: "Utente corrente",
+            endpoint: "/api/users/me",
+            nome: "Profilo utente(me)",
+            richiedeAuth: true,
+          },
+          {
+             metodo: "POST",
+            endpoint: "/api/users/me",
+            nome: "Aggiorna profilo utente(me)",
             richiedeAuth: true,
           },
         ],
 
+        notifiche:[
+             {
+              metodo:"GET",
+              endpoint:"/api/notifications/my",
+              nome:"Notifiche utente",
+              richiedeAuth:true,
+             },
+        ],
+        
         mentors: [
           {
             metodo: "GET",
@@ -143,14 +161,14 @@
           },
           {
             metodo: "POST",
-            endpoint: "/api/mentors/profile",
-            nome: "Aggiorna profilo Mentor",
+            endpoint: "/api/mentors/availability",
+            nome: "Aggiungi disponibilità",
             richiedeAuth: true,
           },
           {
-            metodo: "POST",
-            endpoint: "/api/mentors/availability",
-            nome: "Aggiungi disponibilità",
+            metodo: "DELETE",
+            endpoint: "/api/mentors/availability/123",
+            nome: "Rimuovi disponibilità (id fittizio)",
             richiedeAuth: true,
           },
         ],
@@ -175,25 +193,10 @@
             richiedeAuth: true,
           },
           {
-            metodo: "POST",
-            endpoint: "/api/booking/123/complete",
-            nome: "Completa sessione (id fittizio)",
+            metodo: "PATCH",
+            endpoint: "/api/booking/123/meeting-link",
+            nome: "Aggiorna meeting link (id fittizio)",
             richiedeAuth: true,
-          },
-        ],
-
-        reviews: [
-          {
-            metodo: "POST",
-            endpoint: "/api/reviews",
-            nome: "Lascia recensione",
-            richiedeAuth: true,
-          },
-          {
-            metodo: "GET",
-            endpoint: "/api/reviews/mentor/123",
-            nome: "Recensioni Mentor (id fittizio)",
-            pubblico: true,
           },
         ],
 
@@ -237,6 +240,7 @@
       function testaEndpoint(categoria, endpoint) {
         return new Promise((resolve) => {
           const tempoInizio = Date.now();
+
           let metodoTest = "HEAD";
           let opzioniAjax = {
             url: urlBaseApi + endpoint.endpoint,
@@ -247,6 +251,7 @@
           if (
             endpoint.metodo === "POST" ||
             endpoint.metodo === "PUT" ||
+            endpoint.metodo === "PATCH" ||
             endpoint.metodo === "DELETE"
           ) {
             metodoTest = "OPTIONS";
@@ -339,6 +344,8 @@
             ? "bg-success"
             : endpoint.metodo === "PUT"
             ? "bg-warning text-dark"
+            : endpoint.metodo === "PATCH"
+            ? "bg-secondary"
             : endpoint.metodo === "DELETE"
             ? "bg-danger"
             : "bg-secondary";
@@ -578,6 +585,22 @@
                     <div id="stato-autenticazione" class="row g-2"></div>
                   </div>
 
+                  <!-- Utenti -->
+                  <div class="mb-4">
+                    <h6 class="fw-bold mb-3">
+                      <i class="bi bi-person-badge me-2"></i>Utente / Profilo
+                    </h6>
+                    <div id="stato-utenti" class="row g-2"></div>
+                  </div>
+
+                  <!-- Notifiche -->
+                  <div class="mb-4">
+                    <h6 class="fw-bold mb-3">
+                      <i class="bi bi-bell me-2"></i>Notifiche
+                    </h6>
+                    <div id="stato-notifiche" class="row g-2"></div>
+                  </div>
+
                   <!-- Mentors -->
                   <div class="mb-4">
                     <h6 class="fw-bold mb-3">
@@ -592,14 +615,6 @@
                       <i class="bi bi-calendar-check me-2"></i>Prenotazioni
                     </h6>
                     <div id="stato-booking" class="row g-2"></div>
-                  </div>
-
-                  <!-- Reviews -->
-                  <div class="mb-4">
-                    <h6 class="fw-bold mb-3">
-                      <i class="bi bi-star-fill me-2"></i>Recensioni
-                    </h6>
-                    <div id="stato-reviews" class="row g-2"></div>
                   </div>
 
                   <!-- Messages -->
