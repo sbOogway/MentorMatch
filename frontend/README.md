@@ -51,15 +51,15 @@ frontend/
 │   └── tos.html                    # Placeholder per privacy/tos se necessario
 │
 ├── dashboard_router.html           # Router verso la dashboard corretta
-│
 ├── mentee_dashboard.html           # Dashboard Mentee
 ├── mentor_dashboard.html           # Dashboard Mentor
 ├── mentor_availability.html        # Gestione disponibilità Mentor
 │
+├── profile.html                    # Gestione profilo utente (Mentor / Mentee)
+│
 ├── mentor.html                     # Ricerca Mentor + filtri competenze
 │
 ├── index.html                      # Homepage
-│
 ├── robots.txt                      # Istruzioni SEO
 ├── status.html                     # Stato API e diagnostica
 │
@@ -80,6 +80,7 @@ frontend/
 - Gestione redirect dopo login (alla pagina account)
 - L’integrazione con il backend avverrà tramite endpoint REST forniti dal team backend
 
+
 ---
 
 ### 🔍 Ricerca Mentor (`mentor.html`)
@@ -98,7 +99,7 @@ frontend/
 - Gestione password
 - Logout sicuro
 - Token utente gestito via localStorage
-- Dashboard differenziate per Mentor e Mentee
+- Dashboard differenziate per Mentor e Mentee (visualizzazioni sessioni , gestione e visualizzaione link meeting)
 
 ---
 
@@ -108,6 +109,7 @@ frontend/
   - Icona Account
   - Icona API Status
   - Navigazione
+  - Notifiche
 - **Footer standard comune a tutte le pagine**
 - Caricamento automatico con jQuery → `headerfooterloader.js`
 
@@ -127,7 +129,8 @@ headerfooterloader.js // jQuery-based component loading
 - LocalStorage per memorizzare sessione utente
 - Placeholder funzioni per login, registrazione, ricerca mentor
 - Codice pronto per integrazione futura con API REST
-
+- Controllo accesso alle pagine riservate (dashboard, profilo, disponibilità)
+- Ridirect automatico per utenti non autenticati
 ---
 
 ### Sicurezza lato client
