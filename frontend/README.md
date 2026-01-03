@@ -146,9 +146,9 @@ headerfooterloader.js // jQuery-based component loading
 ### Test Manuali
 | Scenario | Pagina | Input | Output Atteso |
 |----------|--------|-------|---------------|
-|Login corretto	|`autenticazione.html` |	email/password validi|	Redirect a `account.html`|
+|Login corretto	|`autenticazione.html` |	email/password validi|	Redirect a `dashboard_router.html`|
 |Login errato |	`autenticazione.html `|	password sbagliata	|Mostra messaggio errore|
-|Ricerca mentor	|`mentor.html`|	Skill + livello	|Mostra lista mentor filtrati|
+|Ricerca mentor	|`index.html`|	Skill + livello	|Mostra lista mentor filtrati|
 |Filtri vuoti | `mentor.html`|	Nessun filtro|	Mostra tutti i mentor disponibili|
 | Apertura dashboard | `dashboard_router.html` | Utente loggato | Redirect a dashboard Mentor/Mentee |
 | Apertura dashboard senza login | `dashboard_router.html` | Nessun token | Redirect a `autenticazione.html` |
