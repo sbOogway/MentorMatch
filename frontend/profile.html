@@ -75,26 +75,17 @@
       
       const user = getUserLocal();
       $.ajax({
-        url: `${apiBaseUrl}/api/users/me`,
+        url: `${apiBaseUrl}/api/auth/me`,
         type: "GET",
         headers: authHeaders(),
         success: successCb,
-        error: function () {
-          if (!user?.id) return errorCb?.();
-          $.ajax({
-            url: `${apiBaseUrl}/api/users/${user.id}`,
-            type: "GET",
-            headers: authHeaders(),
-            success: successCb,
-            error: errorCb
-          });
-        }
+        error:errorCb
       });
     }
 
     function apiUpdateMe(payload, successCb, errorCb) {
       $.ajax({
-        url: `${apiBaseUrl}/api/users/me`,
+        url: `${apiBaseUrl}/api/auth/me`,
         type: "PUT",
         contentType: "application/json",
         headers: authHeaders(),
@@ -107,19 +98,11 @@
     function apiGetMyBookings(successCb, errorCb) {
       
       $.ajax({
-        url: `${apiBaseUrl}/api/booking/me`,
+        url: `${apiBaseUrl}/api/booking/my`,
         type: "GET",
         headers: authHeaders(),
         success: successCb,
-        error: function () {
-          $.ajax({
-            url: `${apiBaseUrl}/api/bookings/my`,
-            type: "GET",
-            headers: authHeaders(),
-            success: successCb,
-            error: errorCb
-          });
-        }
+        error: errorCb
       });
     }
 
@@ -165,7 +148,7 @@
         $("#areasWrap").toggle(role === "mentor");
 
       }, function () {
-        showAlert("profileFeedback", "Impossibile caricare il profilo. Endpoint /api/users/me non disponibile o token non valido.", "warning");
+        showAlert("profileFeedback", "Impossibile caricare il profilo. Endpoint /api/auth/me non disponibile o token non valido.", "warning");
       });
 
       
@@ -193,7 +176,7 @@
           if (res?.user) localStorage.setItem("userData", JSON.stringify(res.user));
         }, function (xhr) {
           showAlert("profileFeedback",
-            "Errore aggiornamento profilo. Verifica endpoint PUT /api/users/me (o permessi).",
+            "Errore aggiornamento profilo. Verifica endpoint PUT /api/auth/me (o permessi).",
             "danger"
           );
         });
@@ -227,7 +210,7 @@
         });
       }, function () {
         
-        $("#bookingsTbody").html(`<tr><td colspan="4" class="text-muted">Endpoint prenotazioni non disponibile (GET /api/booking/me).</td></tr>`);
+        $("#bookingsTbody").html(`<tr><td colspan="4" class="text-muted">Endpoint prenotazioni non disponibile (GET /api/booking/my).</td></tr>`);
       });
     });
   </script>
@@ -312,10 +295,6 @@
                   <tr><td colspan="4" class="text-muted">Caricamento...</td></tr>
                 </tbody>
               </table>
-            </div>
-
-            <div class="text-muted small">
-              --
             </div>
           </div>
         </div>
