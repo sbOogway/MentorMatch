@@ -1,18 +1,27 @@
-const express = require("express");
-const router = express.Router();
-const AuthController = require("../controllers/AuthController");
-const ProfileController = require("../controllers/ProfileController")
+const express = require("express")
+const router = express.Router()
+
 const authMiddleware = require("../middlewares/authMiddleware")
-router.post("/register", AuthController.register);
-router.post("/login", AuthController.login);
+const ProfileControllerClass = require("../controllers/ProfileController")
+const UserService = require("../services/userService")
+const AuthController = require("../controllers/AuthController")
 
-// GET /api/auth/me  
-router.get("/me", authMiddleware, ProfileController.getLoggedInUserProfile);
 
-// PUT /api/auth/me
-router.put("/me", authMiddleware, ProfileController.updateLoggedInUserProfile);
+const userService = new UserService()
 
-module.exports = router;
+const profileController = new ProfileControllerClass(userService)
+
+
+router.get("/me", authMiddleware, profileController.getLoggedInUserProfile)
+router.put("/me", authMiddleware, profileController.updateLoggedInUserProfile)
+
+
+router.post("/register", AuthController.register)
+router.post("/login", AuthController.login)
+
+module.exports = router
+
+
 
 /**
  * @swagger
