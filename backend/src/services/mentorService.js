@@ -87,18 +87,36 @@ class MentorService {
   }
 
    
-  async updateMentorProfile(mentorId, fields) {
-    const mentor = await this.mentorRepository.findMentorById(mentorId)
-    
-    if (!mentor) {
-      const err = new Error("Mentor not found")
-      err.statusCode = 404
-      throw err
-    }
+  async updateUser(id, fields) {
+    const client = await pool.connect()
   
-    const updated = await this.mentorRepository.updateMentorProfile(mentorId, fields)
-    return updated
+    try {
+      await client.query("BEGIN")
+  
+      const user = await UserRepository.updateUser(client, id, fields)
+      let mentorProfile = null
+  
+      if (user && user.role === "mentor") {
+        mentorProfile = await MentorProfileRepository.updateProfile(client, id, fields)
+        if (mentorProfile) {
+          user.sectors = mentorProfile.sectors
+          user.languages = mentorProfile.languages
+          user.bio = mentorProfile.bio
+        }
+        
+      }
+  
+      await client.query("COMMIT")
+      return user
+  
+    } catch (err) {
+      await client.query("ROLLBACK")
+      throw err
+    } finally {
+      client.release()
+    }
   }
+  
   
   async createMentorAvailability(mentorId, slots) {
     const mentor = await this.mentorRepository.findMentorById(mentorId)

@@ -1,54 +1,45 @@
-
-const userService = require('../services/UserService');
-
-exports.getLoggedInUserProfile = async (req, res) => {
-    
-    const userId = req.user.id; 
-
-    try {
-       
-        const profile = await userService.getUserById(userId);
+class ProfileController {
+    constructor(userService) {
+      this.userService = userService
+  
+      this.getLoggedInUserProfile = this.getLoggedInUserProfile.bind(this)
+      this.updateLoggedInUserProfile = this.updateLoggedInUserProfile.bind(this)
+    }
+  
+    async getLoggedInUserProfile(req, res, next) {
+      try {
+        const userId = req.user.id
+        const profile = await this.userService.getUserById(userId)
+        
+        console.log("REQ USER:", req.user)
 
         if (!profile) {
-           
-            return res.status(404).json({ message: "Utente non trovato." });
+          return res.status(404).json({ message: "Utente non trovato." })
         }
-        
-        return res.status(200).json(profile);
-    } catch (error) {
-        console.error("Errore nel recupero del profilo:", error.message);
-        return res.status(500).json({ message: "Errore interno del server." });
+  
+        res.json(profile)
+      } catch (err) {
+        next(err)
+      }
     }
-};
-
-
-exports.updateLoggedInUserProfile = async (req, res) => {
-    
-    const userId = req.user.id;
-    const updateData = req.body; 
-    const {role, ...updateDataClean} = updateData
-
-    try {
-        
-        const updatedProfile = await userService.updateUser(userId, updateDataClean);
-
-        
-        return res.status(200).json({ 
-            message: "Profilo aggiornato con successo.",
-            data: updatedProfile
-        });
-
-    } catch (error) {
-        
-        if (error.message.includes("Password non corretta")) {
-            statusCode = 403;
-        } else if (error.message.includes("Email già in uso")) {
-             statusCode = 400;
-        }
-
-        console.error("Errore nell'aggiornamento del profilo:", error.message);
-        return res.status(statusCode).json({ message: error.message });
+  
+    async updateLoggedInUserProfile(req, res, next) {
+      try {
+        const userId = req.user.id
+        const { role, ...updateDataClean } = req.body
+  
+        const updatedProfile =
+          await this.userService.updateUser(userId, updateDataClean)
+  
+        res.json({
+          message: "Profilo aggiornato con successo.",
+          data: updatedProfile
+        })
+      } catch (err) {
+        next(err)
+      }
     }
-};
-
-
+  }
+  
+  module.exports = ProfileController
+  
