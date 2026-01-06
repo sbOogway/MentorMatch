@@ -40,7 +40,48 @@
     ></script>
     <script>
       const apiBaseUrl = "";
+      let mentorID = null;
 
+      $(document).ready(()=>{
+        const token = localStorage.getItem("sessionToken");
+
+        if(!token){
+          window.location.href = "index.html";
+          return;
+        }
+        fetchUserProfile(token);
+      });
+
+      function fetchUserProfile(token){
+        $.ajax({
+          url: `${apiBaseUrl}/api/auth/me`,
+          type: "GET",
+          headers: { 
+            Authorization: "Bearer " + token
+          },
+            success: function(user){
+            localStorage.setItem("userData", JSON.stringify(user));
+            const role = user.role?.toLowerCase().trim();
+            if(role !== "mentee"){
+              alert("Accesso non autorizzato.");
+              window.location.href = "index.html";
+             return; 
+            }
+        
+        mentorID = user.id;
+        caricaPrenotazioni();
+        caricaMessaggi();
+
+      $("#welcome-msg").text("Benvenuto, " + user.name);
+        },
+        error: function() {
+            localStorage.clear();
+            window.location.href = "/auth/autenticazione.html";
+        }
+    });
+}
+
+/*
       $(document).ready(() => {
         const token = localStorage.getItem("sessionToken");
         const user = JSON.parse(localStorage.getItem("userData"));
@@ -54,7 +95,7 @@
         caricaPrenotazioni();
         caricaMessaggi();
       });
-
+*/
       function caricaPrenotazioni() {
         const token = localStorage.getItem("sessionToken");
         $.ajax({

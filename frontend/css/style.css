@@ -26,8 +26,12 @@ input:focus, textarea:focus, select:focus {
     margin-bottom: 1rem;
 }
 
+
 .search-hero-form {
-    max-width: 400px;
+    width: 100% !important;
+    max-width: 400px !important; 
+    margin: 0 auto;
+    /* width: 100%;*/
 }
 
 .hidden{

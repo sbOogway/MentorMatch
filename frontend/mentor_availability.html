@@ -61,7 +61,7 @@
           return;
         }
 
-        mentorId = user.id;
+        //mentorId = user.id;
         caricaSlot();
 
         $("#add-slot-btn").click(function () {
@@ -92,9 +92,11 @@
       });
 
       function caricaSlot() {
+        const token = localStorage.getItem("sessionToken");
         $.ajax({
-          url: `${apiBaseUrl}/api/mentors/${mentorId}/availability`,
+          url: `${apiBaseUrl}/api/mentors/availability`,
           type: "GET",
+          headers: { Authorization: "Bearer " + token },
           success: function (slots) {
             allSlots = slots || [];
             renderSlots(allSlots);
@@ -140,9 +142,11 @@
       }
 
       function aggiungiSlot() {
+        const token = localStorage.getItem("sessionToken");
         const start = $("#slot-start").val();
         const end = $("#slot-end").val();
-
+        
+        
         if (!start || !end) {
           alert("Compila entrambi i campi data/ora.");
           return;
@@ -152,8 +156,6 @@
           alert("L'orario di inizio deve essere precedente a quello di fine.");
           return;
         }
-
-        const token = localStorage.getItem("sessionToken");
 
         $.ajax({
           url: `${apiBaseUrl}/api/mentors/availability`,

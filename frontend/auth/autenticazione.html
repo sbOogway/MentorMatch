@@ -191,27 +191,14 @@
             };
 
             if(role === "mentor"){
-                const skillsRaw = $("#mentor-skill").val();
+                const selected = $("#mentor-skill").val();
 
                 if(!selected || selected.length === 0){
-                    showAlert("Seleziona almeno un'area di competenza.", "warning", "register-feedback");
-                    submitButton.prop("disabled", false).html(originalText);
-                    return;
-                }
-/*
-                if(!skillsRaw){
-                    showAlert("Inserisci almeno un'area di competenza.", "warning", "register-feedback");
-                    submitButton.prop("disabled", false).html(originalText);
-                    return;
-                }
-            
-
-            const selected = $("#mentor-skill").val() || [];
-            if (selected.length === 0) {
                 showAlert("Seleziona almeno un'area di competenza.", "warning", "register-feedback");
-                submitButton.prop("disabled", false).html(originalText);
-            return;
-           }*/
+                submitButton.prop("disabled", true).html(
+                    orginalText);
+                    return;
+            }
                 payload.sectors = selected;
             }
 
