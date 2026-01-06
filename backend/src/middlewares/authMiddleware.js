@@ -5,33 +5,38 @@ module.exports = function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
-    return res.status(401).json({ message: "No token provided" });
+    return res.status(401).json({ message: "Authorization header missing" });
   }
 
+  const [scheme, token] = authHeader.split(" ");
 
-  const parts = authHeader.split(" ");
-
-  if (parts.length !== 2) {
-    return res.status(401).json({ message: "Invalid token format" });
+  if (!scheme || !token) {
+    return res.status(401).json({ message: "Malformed authorization header" });
   }
 
-  const [scheme, token] = parts;
-
-  if (scheme !== "Bearer") {
-    return res.status(401).json({ message: "Token must start with Bearer" });
-  }
-
-  if (!token) {
-    return res.status(401).json({ message: "Token missing" });
+  if (scheme.toLowerCase() !== "bearer") {
+    return res.status(401).json({ message: "Authorization scheme must be Bearer" });
   }
 
   jwt.verify(token, jwtSecret, (err, decoded) => {
     if (err) {
-      return res.status(401).json({ message: "Invalid or expired token" });
+      return res.status(401).json({
+        message: "Invalid or expired token",
+        error: err.name
+      });
     }
 
- 
-    req.user = decoded;
+    // Validazione minima payload
+    if (!decoded || !decoded.id || !decoded.role) {
+      return res.status(401).json({ message: "Invalid token payload" });
+    }
+
+    // Attach user to request
+    req.user = {
+      id: decoded.id,
+      email: decoded.email,
+      role: decoded.role
+    };
 
     next();
   });

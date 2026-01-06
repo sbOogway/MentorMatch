@@ -39,6 +39,27 @@ class MentorRepository {
       }
     };
   }
+
+  async findMentorByUserId(userId) {
+  const query = `
+    SELECT
+      mp.id,
+      mp.user_id,
+      u.full_name,
+      mp.bio,
+      mp.sectors,
+      mp.languages,
+      mp.rating_avg AS rating,
+      mp.meeting_link_template
+    FROM mentor_profiles mp
+    JOIN users u ON u.id = mp.user_id
+    WHERE mp.user_id = $1
+  `;
+
+  const { rows } = await pool.query(query, [userId]);
+  return rows[0] || null;
+}
+
  
 
   async findMentors(filters, pagination) {

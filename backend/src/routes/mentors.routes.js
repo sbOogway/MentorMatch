@@ -13,45 +13,49 @@ const mentorService = new MentorService(mentorRepository)
 const mentorController = new MentorController(mentorService)
 
 // GET /api/mentors
-
 router.get(
   "/",
   mentorController.listMentors
 )
 
-// GET /api/mentors/:id/availability
+//GET /api/mentors/me/availability (MENTOR LOGGATO)
+router.get(
+  "/me/availability",
+  authMiddleware,
+  roleMiddleware("mentor"),
+  mentorController.getMyAvailability
+)
 
+// GET /api/mentors/:id/availability (PUBBLICO)
 router.get(
   "/:id/availability",
   mentorController.getMentorAvailability
 )
 
 // GET /api/mentors/:id
-
 router.get(
   "/:id",
   mentorController.getMentorById
 )
 
 // POST /api/mentors/profile
-
 router.post(
   "/profile",
   authMiddleware,
-  roleMiddleware(["mentor"]),
+  roleMiddleware("mentor"),
   mentorController.updateMentorProfile
 )
 
 // POST /api/mentors/availability
-
 router.post(
   "/availability",
   authMiddleware,
-  roleMiddleware(["mentor"]),
+  roleMiddleware("mentor"),
   mentorController.updateMentorAvailability
 )
 
-module.exports = router;
+module.exports = router
+
 
 
 /**

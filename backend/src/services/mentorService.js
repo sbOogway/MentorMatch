@@ -118,17 +118,22 @@ class MentorService {
   }
   
   
-  async createMentorAvailability(mentorId, slots) {
-    const mentor = await this.mentorRepository.findMentorById(mentorId)
-    
-    if (!mentor) {
-      const err = new Error("Mentor not found")
-      err.statusCode = 404
-      throw err
-    }
-  
-    return await this.mentorRepository.createMentorAvailability(mentorId, slots)
+  async createMentorAvailability(userId, slots) {
+  const mentor =
+    await this.mentorRepository.findMentorByUserId(userId)
+
+  if (!mentor) {
+    const error = new Error("Mentor not found")
+    error.statusCode = 404
+    throw error
   }
+
+  return this.mentorRepository.createMentorAvailability(
+    mentor.id,  
+    slots
+  )
+}
+
 
   _badRequest(message) {
     const err = new Error(message)

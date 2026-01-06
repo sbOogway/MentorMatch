@@ -52,11 +52,17 @@ class MentorController {
 
   async getMentorAvailability(req, res, next) {
     try {
+      const mentorId = req.params.id
+       if (!mentorId || mentorId === "null") {
+           return res.status(400).json({ error: "mentorId required" });
+         }
+
       const slots =
         await this.mentorService.getMentorAvailability(
           req.params.id,
           { from: req.query.from, to: req.query.to }
         )
+        
 
       res.json(slots)
     } catch (err) {
@@ -91,6 +97,24 @@ class MentorController {
       next(err)
     }
   }
+
+  async getMyAvailability(req, res, next) {
+  try {
+    const mentor =
+      await this.mentorService.getMentorByUserId(req.user.id);
+
+    const slots =
+      await this.mentorService.getMentorAvailability(
+        mentor.id,
+        { from: req.query.from, to: req.query.to }
+      );
+
+    res.json(slots);
+  } catch (err) {
+    next(err);
+  }
+}
+
 }
 
 module.exports = MentorController
