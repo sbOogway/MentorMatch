@@ -43,6 +43,7 @@
       const apiBaseUrl = "";
       let mentorId = null;
       let allSlots = [];
+      let selectedDate = null;
 
       $(document).ready(() => {
         const token = localStorage.getItem("sessionToken");
@@ -94,7 +95,7 @@
       function caricaSlot() {
         const token = localStorage.getItem("sessionToken");
         $.ajax({
-          url: `${apiBaseUrl}/api/mentors/availability`,
+          url: `${apiBaseUrl}/api/mentors/${mentorId}/availability`,
           type: "GET",
           headers: { Authorization: "Bearer " + token },
           success: function (slots) {
@@ -143,6 +144,11 @@
 
       function aggiungiSlot() {
         const token = localStorage.getItem("sessionToken");
+/*
+        if (!selectedDate) {
+        alert("Seleziona prima una data");
+        return;
+    }*/
         const start = $("#slot-start").val();
         const end = $("#slot-end").val();
         
@@ -157,7 +163,7 @@
           return;
         }
 
-        $.ajax({
+      $.ajax({
           url: `${apiBaseUrl}/api/mentors/availability`,
           type: "POST",
           contentType: "application/json",
