@@ -40,154 +40,178 @@
     ></script>
     <script>
       const apiBaseUrl = "";
+  let currentUser = null;
 
-      $(document).ready(function () {
-        const token = localStorage.getItem("sessionToken");
-        if (!token) {
-          window.location.href = "index.html";
+  function getAuthData() {
+        let token = localStorage.getItem("sessionToken");
+        let user = localStorage.getItem("userData");
+
+        if (!token || !user) {
+            token = sessionStorage.getItem("sessionToken");
+            user = sessionStorage.getItem("userData");
+        }
+
+        if (!token || !user) return null;
+
+        return {
+            token,
+            user: JSON.parse(user)
+        };
+    }
+
+  $(document).ready(() => {
+    const auth = getAuthData();
+
+    if (!auth) {
+        window.location.href = "/auth/autenticazione.html?tab=login";
+        return;
+    }
+
+    const { token, user } = auth;
+
+    
+    $.ajax({
+      url: `${apiBaseUrl}/api/auth/me`,
+      type: "GET",
+      headers: { Authorization: "Bearer " + token },
+      success: function (user) {
+        currentUser = user;
+        localStorage.setItem("userData", JSON.stringify(user));
+
+        inizializzaProfilo(user);
+        caricaPrenotazioni();
+      },
+      error: function () {
+        localStorage.clear();
+        window.location.href = "/auth/autenticazione.html?tab=login";
+      },
+    });
+
+    $("#logoutBtn").on("click", () => {
+      localStorage.clear();
+      window.location.href = "/index.html";
+    });
+  });
+
+  function inizializzaProfilo(user) {
+    $("#roleBadge").text(user.role);
+
+    $("#fullName").val(user.name || "");
+    $("#email").val(user.email || "");
+
+    const role = user.role?.toLowerCase().trim();
+
+    if (role === "mentor") {
+      $("#bioWrap").show();
+      $("#areasWrap").show();
+
+      $("#bio").val(user.bio || "");
+      $("#areas").val(user.skills || "");
+
+      $("#goDashboard").attr("href", "/mentor_dashboard.html");
+    } else {
+      $("#goDashboard").attr("href", "/mentee_dashboard.html");
+    }
+  }
+
+  function aggiornaProfilo() {
+    const token = localStorage.getItem("sessionToken");
+
+    
+    $.ajax({
+      url: `${apiBaseUrl}/api/auth/me`,
+      type: "PUT",
+      contentType: "application/json",
+      headers: { Authorization: "Bearer " + token },
+      data: JSON.stringify({
+        name: $("#fullName").val(),
+      }),
+      success: function () {
+        
+        if (currentUser.role.toLowerCase() === "mentor") {
+          aggiornaDatiMentor();
+        } else {
+          alert("Profilo aggiornato");
+          location.reload();
+        }
+      },
+      error: function () {
+        alert("Errore aggiornamento profilo");
+      },
+    });
+  }
+
+  function aggiornaDatiMentor() {
+    const token = localStorage.getItem("sessionToken");
+
+    $.ajax({
+      url: `${apiBaseUrl}/api/mentors/profile`,
+      type: "POST",
+      contentType: "application/json",
+      headers: { Authorization: "Bearer " + token },
+      data: JSON.stringify({
+        bio: $("#bio").val(),
+        skills: $("#areas").val(),
+      }),
+      success: function () {
+        alert("Profilo mentor aggiornato");
+        location.reload();
+      },
+      error: function () {
+        alert("Errore aggiornamento profilo mentor");
+      },
+    });
+  }
+
+  function caricaPrenotazioni() {
+    $.ajax({
+      url: `${apiBaseUrl}/api/booking/my`,
+      type: "GET",
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("sessionToken"),
+      },
+      success: function (bookings) {
+        const tbody = $("#bookingsTbody");
+        tbody.empty();
+
+        if (!bookings || bookings.length === 0) {
+          tbody.append(
+            `<tr><td colspan="4" class="text-muted">Nessuna prenotazione</td></tr>`
+          );
           return;
         }
 
-        caricaProfilo();
-        caricaPrenotazioni();
-
-        $("#logoutBtn").on("click", function () {
-          localStorage.clear();
-          window.location.href = "/index.html";
+        bookings.forEach((b) => {
+          tbody.append(`
+            <tr>
+              <td>${formatDate(b.start_time)}</td>
+              <td>${b.with || "—"}</td>
+              <td>${b.status}</td>
+              <td>
+                ${
+                  b.meeting_link
+                    ? `<a href="${b.meeting_link}" target="_blank">Apri</a>`
+                    : "—"
+                }
+              </td>
+            </tr>
+          `);
         });
-      });
+      },
+      error: function () {
+        $("#bookingsTbody").html(
+          `<tr><td colspan="4" class="text-muted">Errore caricamento</td></tr>`
+        );
+      },
+    });
+  }
 
-      function caricaProfilo() {
-        $.ajax({
-          url: "/api/auth/me",
-          method: "GET",
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("sessionToken"),
-          },
-          success: function (user) {
-            localStorage.setItem("userData", JSON.stringify(user));
+  function formatDate(iso) {
+    return iso ? new Date(iso).toLocaleString("it-IT") : "—";
+  }
 
-            $("#name").val(user.name);
-            $("#email").val(user.email);
-            $("#roleBadge").text(user.role);
+</script>
 
-            if (user.role === "mentor") {
-              $("#mentor-fields").removeClass("d-none");
-              $("#bio").val(user.bio || "");
-              $("#skills").val(user.skills || "");
-              $("#rate").val(user.hourly_rate || "");
-              $("#goDashboard").attr("href", "/mentor_dashboard.html");
-            } else {
-              $("#goDashboard").attr("href", "/mentee_dashboard.html");
-            }
-          },
-          error: function () {
-            alert("Errore nel caricamento del profilo");
-          },
-        });
-      }
-
-      function aggiornaProfilo() {
-        const user = JSON.parse(localStorage.getItem("userData"));
-
-        const datiBase = {
-          name: $("#name").val(),
-        };
-
-        $.ajax({
-          url: "/api/auth/me",
-          method: "PUT",
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("sessionToken"),
-            "Content-Type": "application/json",
-          },
-          data: JSON.stringify(datiBase),
-          success: function () {
-            if (user.role === "MENTOR") {
-              salvaInfoMentor();
-            } else {
-              alert("Profilo aggiornato");
-              location.reload();
-            }
-          },
-          error: function () {
-            alert("Errore aggiornamento profilo");
-          },
-        });
-      }
-
-      function salvaInfoMentor() {
-        const infoMentor = {
-          bio: $("#bio").val(),
-          skills: $("#skills").val(),
-          hourly_rate: $("#rate").val(),
-        };
-
-        $.ajax({
-          url: "/api/mentors/profile",
-          method: "POST",
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("sessionToken"),
-            "Content-Type": "application/json",
-          },
-          data: JSON.stringify(infoMentor),
-          success: function () {
-            alert("Profilo mentor aggiornato");
-            location.reload();
-          },
-          error: function () {
-            alert("Errore aggiornamento profilo mentor");
-          },
-        });
-      }
-      function caricaPrenotazioni() {
-        $.ajax({
-          url: "/api/booking/my",
-          method: "GET",
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("sessionToken"),
-          },
-          success: function (bookings) {
-            const tbody = $("#bookingsTbody");
-            tbody.empty();
-
-            if (!bookings || bookings.length === 0) {
-              tbody.append(
-                `<tr><td colspan="4" class="text-muted">Nessuna prenotazione</td></tr>`
-              );
-              return;
-            }
-
-            bookings.forEach((b) => {
-              tbody.append(`
-          <tr>
-            <td>${formatDate(b.start_time)}</td>
-            <td>${b.with || "N/D"}</td>
-            <td>${b.status}</td>
-            <td>
-              ${
-                b.meeting_link
-                  ? `<a href="${b.meeting_link}" target="_blank">Apri</a>`
-                  : "—"
-              }
-            </td>
-          </tr>
-        `);
-            });
-          },
-          error: function () {
-            $("#bookingsTbody").html(
-              `<tr><td colspan="4" class="text-muted">Errore caricamento prenotazioni</td></tr>`
-            );
-          },
-        });
-      }
-
-      function formatDate(iso) {
-        if (!iso) return "N/D";
-        return new Date(iso).toLocaleString("it-IT");
-      }
-    </script>
   </head>
 
   <body style="padding-top: 55px">
@@ -203,7 +227,7 @@
           <a
             id="goDashboard"
             class="btn btn-outline-dark"
-            href="/dashboard_router.html"
+            href="dashboard_router.html"
           >
             <i class="bi bi-grid me-1"></i> Dashboard
           </a>
@@ -272,7 +296,7 @@
                 <button
                   class="btn btn-dark w-100"
                   type="button"
-                  onclick="aggiornaDatiUtente()"
+                  onclick="aggiornaProfilo()"
                 >
                   <i class="bi bi-save me-2"></i> Salva modifiche
                 </button>

@@ -27,7 +27,7 @@
     // Utente NON loggato
     if (!token || !userData) {
         window.location.href = "auth/autenticazione.html?tab=login";
-        return;
+        //return;
     }
      
     const role= (userData.role || "").toLowerCase().trim();

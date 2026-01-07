@@ -31,8 +31,6 @@
         const urlBaseApi= ""; 
 
         $(document).ready(function (){
-
-            //Token
             const token = localStorage.getItem('sessionToken');
             const userData = JSON.parse(localStorage.getItem('userData'));
             if(token && userData && userData.role){
@@ -189,7 +187,7 @@
                 full_name: `${firstName} ${lastName}`,
                 role: role
             };
-
+           
             if(role === "mentor"){
                 const selected = $("#mentor-skill").val();
 
