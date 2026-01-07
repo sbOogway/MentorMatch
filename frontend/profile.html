@@ -42,7 +42,7 @@
       const apiBaseUrl = "";
   let currentUser = null;
 
-  function getAuthData() {
+  /*function getAuthData() {
         let token = localStorage.getItem("sessionToken");
         let user = localStorage.getItem("userData");
 
@@ -57,19 +57,15 @@
             token,
             user: JSON.parse(user)
         };
-    }
+    }*/
 
   $(document).ready(() => {
-    const auth = getAuthData();
-
-    if (!auth) {
-        window.location.href = "/auth/autenticazione.html?tab=login";
-        return;
+    const token = localStorage.getItem("sessionToken"); 
+    if (!token) { 
+      window.location.href = "/auth/autenticazione.html?tab=login"; 
+      return; 
     }
 
-    const { token, user } = auth;
-
-    
     $.ajax({
       url: `${apiBaseUrl}/api/auth/me`,
       type: "GET",

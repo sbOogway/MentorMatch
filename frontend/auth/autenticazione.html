@@ -118,11 +118,13 @@
                 success: function (res) {
                     const user = res.user;
                     user.role= user.role.toLowerCase().trim();
+
                     const storage = ricordami ? localStorage : sessionStorage;
                     storage.setItem("sessionToken", res.token);
                     storage.setItem("userData", JSON.stringify(user));
 
-                    // Redirect in base al ruolo
+                    
+                     //Redirect in base al ruolo
                     if (user.role === "mentor") {
                         window.location.href = "../mentor_dashboard.html";
                     } else {
@@ -397,7 +399,7 @@
                     <div class="col-md-6">
                         <label for="mentor-skill" class="form-label">Area di competenza</label>
                         
-                        <select id="mentor-skill" class="form-select" multiple required>
+                        <select id="mentor-skill" class="form-select" multiple >
                             <option value= "Software"> Sviluppo Software</option>
                             <option value= "Data"> Dati & Analytics</option>
                             <option value= "Product"> Gestione Prodotto</option>
