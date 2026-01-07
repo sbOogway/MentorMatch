@@ -191,12 +191,27 @@
        * Handle search form (hero search)
        */
       function initSearchForm() {
+        const $searchInput = $("#searchInput");
+
         $("#searchForm").submit(function (event) {
           event.preventDefault();
           const query = $("#searchInput").val().trim();
           appliedFilters.q = query || null;
           loadMentors(1, appliedFilters);
         });
+
+         let typingTimer;
+         const typingDelay = 500;
+
+         $searchInput.on("input", function () {
+    clearTimeout(typingTimer);
+    const query = $(this).val().trim();
+    
+    typingTimer = setTimeout(() => {
+      appliedFilters.q = query || null; // aggiorna filtro
+      loadMentors(1, appliedFilters);   // ricarica mentor
+    }, typingDelay);
+  });
 
         // If user clears the search input, reload without q
         $("#searchInput").on("input", function () {
@@ -223,9 +238,18 @@
           type: "GET",
           dataType: "json",
           success: function (data) {
-            // Adapt to spec: { items: [...], meta: { page, limit, total } }
-            const items = data.items || [];
-            const meta = data.meta || {};
+            let items = data.items || [];
+      const meta = data.meta || {};
+
+      if (filters.q) {
+        const q = filters.q.toLowerCase();
+        items = items.filter((m) => {
+          const name = (m.full_name || "").toLowerCase();
+          const bio = (m.bio || m.summary || "").toLowerCase();
+          const sectors = (m.sectors || []).join(" ").toLowerCase();
+          return name.includes(q) || bio.includes(q) || sectors.includes(q);
+        });
+      }
 
             if (page === 1) {
               mentorList = items;
