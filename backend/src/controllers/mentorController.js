@@ -7,6 +7,7 @@ class MentorController {
     this.getMentorAvailability = this.getMentorAvailability.bind(this)
     this.updateMentorProfile = this.updateMentorProfile.bind(this)
     this.updateMentorAvailability = this.updateMentorAvailability.bind(this)
+    this.getMyAvailability = this.getMyAvailability.bind(this)
   }
 
   async listMentors(req, res, next) {
@@ -99,21 +100,21 @@ class MentorController {
   }
 
   async getMyAvailability(req, res, next) {
-  try {
-    const mentor =
-      await this.mentorService.getMentorByUserId(req.user.id);
-
-    const slots =
-      await this.mentorService.getMentorAvailability(
-        mentor.id,
-        { from: req.query.from, to: req.query.to }
-      );
-
-    res.json(slots);
-  } catch (err) {
-    next(err);
+    try {
+      const mentorId = req.user.id
+  
+      const slots =
+        await this.mentorService.getMentorAvailability(
+          mentorId,
+          { from: req.query.from, to: req.query.to }
+        )
+  
+      res.json(slots)
+    } catch (err) {
+      next(err)
+    }
   }
-}
+  
 
 }
 
