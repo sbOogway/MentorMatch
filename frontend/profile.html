@@ -175,7 +175,7 @@
     
     $.ajax({
       url: `${apiBaseUrl}/api/mentors/profile`,
-      type: "POST",
+      type: "PATCH",
       contentType: "application/json",
       headers: { Authorization: "Bearer " + token },
       data: JSON.stringify(mentorData),
