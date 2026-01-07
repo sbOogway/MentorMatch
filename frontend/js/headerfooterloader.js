@@ -15,10 +15,10 @@ $(function () {
     }
 
     // Leggo dati utente
-    const token = localStorage.getItem("sessionToken");
+    const token = localStorage.getItem("sessionToken") || sessionStorage.getItem("sessionToken");
     let userData = null;
     try {
-      const raw = localStorage.getItem("userData");
+      const raw = localStorage.getItem("userData") || sessionStorage.getItem("userData");
       userData = raw ? JSON.parse(raw) : null;
     } catch (e) {
       console.warn("Errore nel parse di userData:", e);
@@ -69,9 +69,6 @@ $(function () {
       if (notifBadge) notifBadge.classList.add("d-none");
 
       try {
-        const token = localStorage.getItem("sessionToken");
-        if (!token) return;
-
         const res = await fetch(`/api/notifications/my`, {
           headers: { Authorization: "Bearer " + token },
         });
