@@ -113,7 +113,11 @@
   function aggiornaProfilo() {
     const token = localStorage.getItem("sessionToken");
 
-    
+    if (!currentUser) {
+        alert("Utente non caricato correttamente");
+        return;
+    }
+
     $.ajax({
       url: `${apiBaseUrl}/api/auth/me`,
       type: "PUT",
@@ -121,9 +125,13 @@
       headers: { Authorization: "Bearer " + token },
       data: JSON.stringify({
         full_name: $("#fullName").val(),
+        email: currentUser.email,
+        password: ""
       }),
       success: function () {
-        
+        currentUser.full_name = $("#fullName").val();
+
+          const role = currentUser.role?.toLowerCase().trim();
         if (currentUser.role.toLowerCase() === "mentor") {
           aggiornaDatiMentor();
         } else {
@@ -132,6 +140,7 @@
         }
       },
       error: function () {
+        console.log(xhr.responseText);
         alert("Errore aggiornamento profilo");
       },
     });
@@ -140,17 +149,40 @@
   function aggiornaDatiMentor() {
     const token = localStorage.getItem("sessionToken");
 
+    if (!currentUser) {
+        alert("Utente non caricato correttamente");
+        return;
+    }
+
+     const sectorArray = $("#areas")
+        .val()
+        .split(",")
+        .map(s => s.trim())
+        .filter(s => s.length);
+
+    
+    const languagesArray = [];
+
+    
+    const mentorData = {
+        id: currentUser.id,
+        full_name: $("#fullName").val(),
+        email: currentUser.email,
+        role: currentUser.role,
+        bio: $("#bio").val(),
+        sector: sectorArray,
+        languages: languagesArray
+    };
+    
     $.ajax({
       url: `${apiBaseUrl}/api/mentors/profile`,
       type: "POST",
       contentType: "application/json",
       headers: { Authorization: "Bearer " + token },
-      data: JSON.stringify({
-        bio: $("#bio").val(),
-        skills: $("#areas").val(),
-      }),
+      data: JSON.stringify(mentorData),
       success: function () {
         alert("Profilo mentor aggiornato");
+        currentUser.full_name = $("#fullName").val();
         location.reload();
       },
       error: function () {
