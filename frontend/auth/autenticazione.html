@@ -31,11 +31,12 @@
         const urlBaseApi= ""; 
 
         $(document).ready(function (){
-            const token = localStorage.getItem('sessionToken');
-            const userData = JSON.parse(localStorage.getItem('userData'));
+            const token = localStorage.getItem('sessionToken') || sessionStorage.getItem('sessionToken');
+            let userData = JSON.parse(localStorage.getItem('userData')) || JSON.parse(sessionStorage.getItem('userData'));
             if(token && userData && userData.role){
                 userData.role= userData.role.toLowerCase().trim();
-                localStorage.setItem("userData", JSON.stringify(userData));
+                const storage = localStorage.getItem('sessionToken') ? localStorage : sessionStorage;
+                storage.setItem("userData", JSON.stringify(userData));
               }
             
 
@@ -226,7 +227,7 @@
                     
                         let msgError = "Errore durante la registrazione. Riprova.";
                         if (xhr.responseJSON ) {
-                            msgError = xhr.responseJSON.message || xhr.responseJSON.error || msg.Error;
+                            msgError = xhr.responseJSON.message || xhr.responseJSON.error;
                         } 
                         showAlert(msgError, 'danger', 'register-feedback');
                         submitButton.prop('disabled', false).html(originalText);

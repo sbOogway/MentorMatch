@@ -60,7 +60,10 @@
     }*/
 
       $(document).ready(()=>{
-       const token = localStorage.getItem("sessionToken"); 
+       let token = localStorage.getItem("sessionToken");
+       if(!token){
+         token = sessionStorage.getItem("sessionToken");
+       }
        if(!token){
          window.location.href = "index.html"; 
          return; 
