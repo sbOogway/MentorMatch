@@ -64,9 +64,9 @@
     if (!token) {
       token = sessionStorage.getItem("sessionToken");
     }
-    if (!token) { 
-      window.location.href = "/auth/autenticazione.html?tab=login"; 
-      return; 
+    if (!token) {
+      window.location.href = "/auth/autenticazione.html?tab=login";
+      return;
     }
 
     $.ajax({

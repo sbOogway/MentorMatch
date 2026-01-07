@@ -65,7 +65,7 @@
         let token = localStorage.getItem("sessionToken");
         let user = localStorage.getItem("userData");
 
-         if (!token || !user) { 
+        if (!token || !user) {
             token = sessionStorage.getItem("sessionToken");
             user = sessionStorage.getItem("userData");
         }
@@ -73,17 +73,17 @@
         const parsedUser = JSON.parse(user || "null");
         const role = (parsedUser?.role || "").toLowerCase().trim();
          if (!token || !parsedUser) {
-          alert("Sessione mancante. Rifai login."); 
-          window.location.href = "/auth/autenticazione.html?tab=login"; 
+          alert("Sessione mancante. Rifai login.");
+          window.location.href = "/auth/autenticazione.html?tab=login";
           return;
-         } 
-         
-         if (role !== "mentor") { 
+         }
+
+         if (role !== "mentor") {
           alert("Accesso riservato ai mentor. Role trovato: " + role);
-           window.location.href = "/dashboard_router.html"; 
-           return; 
-          } 
-          
+           window.location.href = "/dashboard_router.html";
+           return;
+          }
+
            //mentorId = parsedUser.id; caricaSlot();
         $.ajax({
       url: `${apiBaseUrl}/api/auth/me`,
@@ -267,30 +267,6 @@
           minute: "2-digit",
         });
       }
-
-      document.addEventListener("DOMContentLoaded", () => {
-        const banner = document.getElementById("cookie-banner");
-        const acceptBtn = document.getElementById("acceptCookies");
-        const rejectBtn = document.getElementById("rejectCookies");
-
-        if (!banner || !acceptBtn || !rejectBtn) return;
-
-        if (!localStorage.getItem("cookieConsent")) {
-          setTimeout(() => banner.classList.add("show"), 50);
-        }
-
-        acceptBtn.addEventListener("click", () => {
-          localStorage.setItem("cookieConsent", "true");
-          banner.classList.remove("show");
-          setTimeout(() => (banner.style.display = "none"), 400);
-        });
-
-        rejectBtn.addEventListener("click", () => {
-          localStorage.setItem("cookieConsent", "false");
-          banner.classList.remove("show");
-          setTimeout(() => (banner.style.display = "none"), 400);
-        });
-      });
     </script>
   </head>
 
@@ -364,5 +340,6 @@
       crossorigin="anonymous"
     ></script>
     <script src="js/headerfooterloader.js"></script>
+    <script src="js/cookie-banner.js"></script>
   </body>
 </html>
